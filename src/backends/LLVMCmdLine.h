@@ -4,5 +4,6 @@
 
 namespace CL {
 	extern CmdLine::Option<int> OptLevel;
+    extern CmdLine::Option<string> LlvmHeader;
 };
 

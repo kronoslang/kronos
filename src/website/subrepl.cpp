@@ -44,7 +44,8 @@ std::string subrepl_state::evaluate(std::string immediate) {
 	} catch (...) {
 		std::cerr.rdbuf(oldCerr);
 		std::cout.rdbuf(oldCout);
-		std::clog << output.str();
+		std::cerr << code << "\n";
+		std::cerr << output.str();
 		throw;
 	}
 	std::cerr.rdbuf(oldCerr);

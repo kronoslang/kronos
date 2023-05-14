@@ -1,6 +1,9 @@
 #include "midi.h"
 #include "audio.h"
+
+#if HAS_O2
 #include "o2driver.h"
+#endif
 
 #include <chrono>
 #include <thread>
@@ -195,6 +198,7 @@ namespace Kronos {
 		class Registry : public Broadcaster, public IRegistry, public IConfiguringHierarchy, public IConfigurationDelegate {
 			std::unordered_set<IConfigurationDelegate*> configDelegates;
 			std::unordered_map<std::string, std::string> configSettings;
+            std::unique_ptr<IHierarchy> genericSubject;
 		public:
 			Registry(std::initializer_list<Subject::Ref>&& subs) {
 				for (auto &s : subs) {
@@ -226,6 +230,14 @@ namespace Kronos {
 			void RemoveDelegate(IConfigurationDelegate& del) override {
 				configDelegates.erase(&del);
 			}
+            
+            void SetGenericHandler(std::unique_ptr<IHierarchy> sub) {
+                genericSubject = std::move(sub);
+            }
+            
+            void UnknownSubject(const Runtime::MethodKey& mk, const ManagedRef& mr, krt_instance inst, krt_process_call proc, void const** slot) override {
+                genericSubject->Subscribe(mk, mr, inst, proc, slot);
+            }
 
 			void Set(const std::string& key, const std::string& value) override {
 				if (configSettings[key] != value) {
@@ -242,7 +254,7 @@ namespace Kronos {
 			MIDI::Setup(*reg);
 
  #ifdef HAS_O2
-			o2::Setup(*reg, reg.get());
+            reg->SetGenericHandler(o2::Setup(*reg, reg.get()));
  #endif
 
             return std::move(reg);

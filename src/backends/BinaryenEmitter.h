@@ -22,6 +22,13 @@ namespace K3 {
 			BinaryenExpressionRef GetBlock(BinaryenModuleRef M, const char *nm = nullptr) const;
 		};
 
+		struct BinaryenFunctionTypeRef {
+			std::vector<BinaryenType> argumentType;
+			BinaryenType returnType;
+
+			bool operator==(const BinaryenFunctionTypeRef&) const;
+		};
+
 		struct FnData {
 			std::string name;
 			bool exported;
@@ -33,6 +40,14 @@ namespace K3 {
 			mutable bool emitted = false;
 			bool hasTco = false;
 			std::unordered_set<BinaryenExpressionRef> seen;
+
+			int GetNumParams() const {
+				return (int)ty.argumentType.size();
+			}
+
+			BinaryenType GetParamType() const {
+				return BinaryenTypeCreate((BinaryenType*)ty.argumentType.data(), (BinaryenIndex)ty.argumentType.size());
+			}
 		};
 
 		struct BinaryenFunction {
@@ -87,12 +102,12 @@ namespace K3 {
 						return;
 					}
 					KRONOS_UNREACHABLE;
-				} else if (BinaryenExpressionGetId(expr) == BinaryenGetLocalId() && 
-						   BinaryenGetLocalGetIndex(expr) < BinaryenFunctionTypeGetNumParams(fn.d->ty)) {
-					idx = BinaryenGetLocalGetIndex(expr);
+				} else if (BinaryenExpressionGetId(expr) == BinaryenLocalGetId() && 
+						   BinaryenLocalGetGetIndex(expr) < fn.d->GetNumParams()) {
+					idx = BinaryenLocalGetGetIndex(expr);
 				} else {
 					idx = fn.LVar("", L.type);
-					b.instr.emplace_back(BinaryenSetLocal(fn.d->M, idx, expr));
+					b.instr.emplace_back(BinaryenLocalSet(fn.d->M, idx, expr));
 				}
 			}
 
@@ -101,7 +116,7 @@ namespace K3 {
 					return BinaryenConst(M, L);
 				}
 				assert(L.type != BinaryenTypeNone());
-				return BinaryenGetLocal(M, idx, L.type);
+				return BinaryenLocalGet(M, idx, L.type);
 			}
 		};
 
@@ -189,7 +204,7 @@ namespace K3 {
 
 			BinaryenExpressionRef Select(BinaryenExpressionRef which, BinaryenExpressionRef whenTrue, BinaryenExpressionRef whenFalse) {
 				Use(which); Use(whenTrue); Use(whenFalse);
-				return BinaryenSelect(M, which, whenTrue, whenFalse);
+				return BinaryenSelect(M, which, whenTrue, whenFalse, BinaryenExpressionGetType(whenTrue));
 			}
 
 			BinaryenExpressionRef NonZero(BinaryenExpressionRef expr);
@@ -245,7 +260,7 @@ namespace K3 {
 			void Ret(BinaryenExpressionRef v = nullptr) {
 				auto retVal = v ? (BinaryenExpressionRef)TmpVar(v) : nullptr;
 				b->instr.emplace_back(
-					BinaryenSetGlobal(M, STACK_PTR, BinaryenGetLocal(M, BinaryenFunctionTypeGetNumParams(fn.d->ty), BinaryenTypeInt32())));
+					BinaryenGlobalSet(M, STACK_PTR, BinaryenLocalGet(M, fn.d->GetNumParams(), BinaryenTypeInt32())));
 				b->instr.emplace_back(BinaryenReturn(M, retVal));
 			}
 
@@ -265,8 +280,8 @@ namespace K3 {
 			BinaryenExpressionRef FnArg(int index, BinaryenType ty);
 			int NumFnArgs();
 
-			BinaryenType FnArgTy(BinaryenFunctionTypeRef, int index);
-			int NumFnArgs(BinaryenFunctionTypeRef);
+			BinaryenType FnArgTy(BinaryenFunctionTypeRef const&, int index);
+			int NumFnArgs(BinaryenFunctionTypeRef const&);
 
 
 			BinaryenExpressionRef GetSlot(int index);
@@ -374,16 +389,16 @@ namespace K3 {
 			void Set(BinaryenIndex i, BinaryenExpressionRef val) {
 				Use(val);
 				assert(BinaryenExpressionGetType(val) != BinaryenTypeNone());
-				b->instr.push_back(BinaryenSetLocal(M, i, val));
+				b->instr.push_back(BinaryenLocalSet(M, i, val));
 			}
 
 			BinaryenExpressionRef Get(BinaryenIndex i, BinaryenType ty) {
 				assert(ty != BinaryenTypeNone());
-				return BinaryenGetLocal(M, i, ty);
+				return BinaryenLocalGet(M, i, ty);
 			}
 
 			BinaryenExpressionRef Get(BinaryenIndex i) {
-				return BinaryenGetLocal(M, i, fn.TypeOfVar(i - BinaryenFunctionTypeGetNumParams(fn.d->ty)));
+				return BinaryenLocalGet(M, i, fn.TypeOfVar(i - fn.d->GetNumParams()));
 			}
 
 			BinaryenExpressionRef False() { return Const(0); }
@@ -420,4 +435,10 @@ namespace K3 {
 			BinaryenExpressionRef UnaryOp(Nodes::Native::Opcode, BinaryenExpressionRef up);
 		};
 	}
+}
+
+namespace std {
+	template <> struct hash<K3::Backends::BinaryenFunctionTypeRef> {
+		size_t operator()(const K3::Backends::BinaryenFunctionTypeRef& r) const;
+	};
 }

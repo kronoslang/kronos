@@ -29,9 +29,7 @@
 
 #include "LLVMCmdLine.h"
 
-namespace CL {
-    extern CmdLine::Option<int> OptLevel;
-}
+#include <fstream>
 
 using namespace llvm;
 
@@ -83,6 +81,10 @@ namespace K3 {
 		void LLVM::AoT(const char *prefix, const char *fileType, std::ostream& writeToStream, Kronos::BuildFlags flags, const char* triple, const char *mcpu, const char *march, const char *mfeat) {
 			llvm::SmallVector<char, 16384> sv;
 			raw_svector_ostream SVOS(sv);
+
+            if (CL::LlvmHeader().size()) {
+                cppHeader.Open(CL::LlvmHeader(), prefix, GetArgumentType(), GetResultType());
+            }
 
 			std::string smcpu(mcpu), smtriple(triple), smarch(march);
 
@@ -173,6 +175,8 @@ namespace K3 {
             auto str = SVOS.str();
 			writeToStream.write(str.data(), str.size());
 			writeToStream.flush();
+
+            cppHeader.Close();
 		}
 	}
 }

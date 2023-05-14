@@ -10,7 +10,6 @@ struct mu{};
 #define DEFAULT_LOCAL_COMPARE(BASE,...) int LocalCompare(const ImmutableNode& r) const override \
 {auto& rhs(static_cast<decltype(*this)>(r)); META_MAP(LOCAL_COMPARE_BODY,__VA_ARGS__); return BASE::LocalCompare(r);}
 
-#include "config/cxx.h"
 #include "Generic.h"
 #include "Typed.h"
 
@@ -18,7 +17,7 @@ struct mu{};
 
 template <class NODE>
 std::ostream& operator<<(std::ostream& out, const K3::CachedTransformNode<NODE>& graph) {
-	static CMAKE_THREAD_LOCAL unsigned int indent;
+	static thread_local unsigned int indent;
 	struct printVisitor {
 		const ImmutableNode *parentTuple = nullptr;
 		std::ostream& strm;

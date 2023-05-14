@@ -1,6 +1,5 @@
 #include "binaryen-c.h"
 #include "wasm.h"
-#include "wasm-printing.h"
 
 #include "BinaryenModule.h"
 #include "Binaryen.h"
@@ -43,8 +42,8 @@ namespace K3 {
 			if (flags & Kronos::BuildFlags::WasmStandaloneModule) {
 				StandaloneModule = true;
 			} else {
-				BinaryenAddGlobalImport(M, STATIC_DATA, "DS", "addr", BinaryenTypeInt32());
-				StaticData = BinaryenGetGlobal(M, STATIC_DATA, BinaryenTypeInt32());
+				BinaryenAddGlobalImport(M, STATIC_DATA, "DS", "addr", BinaryenTypeInt32(), false);
+				StaticData = BinaryenGlobalGet(M, STATIC_DATA, BinaryenTypeInt32());
 			}
 
 			RegionAllocator alloc;
@@ -65,8 +64,9 @@ namespace K3 {
 			};
 
 			BinaryenType slotSetterArgTys[] = { BinaryenTypeInt32() };
-			auto slotSetterTy = BinaryenAddFunctionType(M, "SlotSetterTy", BinaryenTypeNone(), slotSetterArgTys, 1);
-			auto slotGetterTy = BinaryenAddFunctionType(M, "SlotGetterTy", BinaryenTypeInt32(), nullptr, 0);
+			BinaryenType slotSetterArgTy = BinaryenTypeInt32();
+//			auto slotSetterTy = BinaryenAddFunctionType(M, "SlotSetterTy", BinaryenTypeNone(), slotSetterArgTys, 1);
+//			auto slotGetterTy = BinaryenAddFunctionType(M, "SlotGetterTy", BinaryenTypeInt32(), nullptr, 0);
 
 			for (auto &gk : globalKeyTable) {
 				auto uid = gk.second.uid;
@@ -78,12 +78,14 @@ namespace K3 {
 
 				std::string setter = "set_" + key.str(), getter = "get_" + key.str();
 
-				BinaryenAddFunction(M, setter.c_str(), slotSetterTy, nullptr, 0,
-									BinaryenSetGlobal(M, nm.c_str(),
-										BinaryenGetLocal(M, 0, BinaryenTypeInt32())));
+				BinaryenAddFunction(M, setter.c_str(), BinaryenTypeInt32(), BinaryenTypeNone(),
+									nullptr, 0,
+									BinaryenGlobalSet(M, nm.c_str(),
+										BinaryenLocalGet(M, 0, BinaryenTypeInt32())));
 
-				BinaryenAddFunction(M, getter.c_str(), slotGetterTy, nullptr, 0,
-									BinaryenGetGlobal(M, nm.c_str(), BinaryenTypeInt32()));
+				BinaryenAddFunction(M, getter.c_str(), BinaryenTypeNone(), BinaryenTypeInt32(), 
+									nullptr, 0,
+									BinaryenGlobalGet(M, nm.c_str(), BinaryenTypeInt32()));
 
 				BinaryenAddFunctionExport(M, setter.c_str(), setter.c_str());
 				BinaryenAddFunctionExport(M, getter.c_str(), getter.c_str());
@@ -140,18 +142,18 @@ namespace K3 {
 				auto addInstance = CreateFunction("AddInstance", Int32Ty(), { }, true);
 				{
 					BuilderTy b{ addInstance };
-					auto inst = b.TmpVar(BinaryenGetGlobal(M, HEAP_TOP, BinaryenTypeInt32()));
+					auto inst = b.TmpVar(BinaryenGlobalGet(M, HEAP_TOP, BinaryenTypeInt32()));
 					auto sz = b.TmpVar(b.PureCall(sizeExport, {}, false));
-					b.Sfx(BinaryenSetGlobal(M, HEAP_TOP, b.AddInt32(inst, sz)));
+					b.Sfx(BinaryenGlobalSet(M, HEAP_TOP, b.AddInt32(inst, sz)));
 					auto newSize = b.AddInt32(b.Const(16), b.DivSInt32(sz, b.Const(0x10000)));
-					b.Sfx(BinaryenHost(M, BinaryenGrowMemory(), nullptr, &newSize, 1));
+					b.Sfx(BinaryenMemoryGrow(M, newSize));
 					b.Ret(inst);
 				}
 
 				auto unwindStack = CreateFunction("UnwindStack", VoidTy(), {}, true);
 				{
 					BuilderTy b{ unwindStack };
-					b.Set(0, BinaryenGetGlobal(M, HEAP_TOP, BinaryenTypeInt32()));
+					b.Set(0, BinaryenGlobalGet(M, HEAP_TOP, BinaryenTypeInt32()));
 					b.Ret();
 				}
 
@@ -167,13 +169,13 @@ namespace K3 {
 			auto getStackPointer = CreateFunction("GetStackPointer", Int32Ty(), {}, true);
 			{
 				BuilderTy b{ getStackPointer };
-				b.Ret(BinaryenGetGlobal(M, STACK_PTR, BinaryenTypeInt32()));
+				b.Ret(BinaryenGlobalGet(M, STACK_PTR, BinaryenTypeInt32()));
 			}
 
 			auto setStackPointer = CreateFunction("SetStackPointer", VoidTy(), { Int32Ty() }, true);
 			{
 				BuilderTy b{ setStackPointer };
-				b.Sfx(BinaryenSetGlobal(M, STACK_PTR, b.FnArg(0)));
+				b.Sfx(BinaryenGlobalSet(M, STACK_PTR, b.FnArg(0)));
 				b.RetNoUnwind();
 			}
 
@@ -243,15 +245,26 @@ namespace K3 {
 
 			BinaryenModuleAutoDrop(M);
 #ifndef NDEBUG
-			BinaryenModuleValidate(M);
+			if (!BinaryenModuleValidate(M)) {
+				std::cerr << "Invalid code emitted!";
+			}
+			BinaryenModulePrint(M);
 #endif
 #ifdef EMSCRIPTEN
 			std::clog << "Optimizing code...\n";
 #endif
 			if (CL::OptLevel() > 0) {
 				BinaryenSetOptimizeLevel(CL::OptLevel());
+				BinaryenSetFastMath(true);
+				BinaryenSetAllowInliningFunctionsWithLoops(true);
 				BinaryenModuleOptimize(M);
 			}
+
+#ifndef NDEBUG
+			if (!BinaryenModuleValidate(M)) {
+				std::cerr << "Invalid code after optimizer!";
+			}
+#endif
 
 #ifdef EMSCRIPTEN
 			std::clog << "Emitting...\n";
@@ -271,9 +284,10 @@ namespace K3 {
 		}
 
 		BinaryenFunctionTypeRef BinaryenModule::CreateFunctionTy(BinaryenType retTy, const std::vector<BinaryenType>& params) {
-			auto ty = BinaryenGetFunctionTypeBySignature(M, retTy, (BinaryenType*)params.data(), (int)params.size());
-			if (ty) return ty;
-			return BinaryenAddFunctionType(M, nullptr, retTy, (BinaryenType*)params.data(), (int)params.size());
+			BinaryenFunctionTypeRef ty;
+			ty.argumentType = params;
+			ty.returnType = retTy;
+			return ty;
 		}
 
 		BinaryenSpec::FunctionTy BinaryenSpec::CompilePass(const std::string& name, Backends::BuilderPass passCategory, const DriverSet& drivers) { 
@@ -281,13 +295,22 @@ namespace K3 {
 			return CompilePass(name, passCategory, drivers, emptySet);
 		}
 
+		template <typename T>
+		static size_t get_hash(T const& v) {
+			return std::hash<T>()(v);
+		}
+
 		BinaryenSpec::FunctionTy BinaryenSpec::CompilePass(const std::string& name, Backends::BuilderPass passCategory, const DriverSet& drivers, const CounterIndiceSet& counters) {
 			using FunctionKey = std::tuple<Graph<const Typed>, FunctionTyTy>;
 
 			struct FunctionKeyHash {
+
 				size_t operator()(const FunctionKey& fk) const {
-					return std::get<Graph<const Typed>>(fk)->GetHash() ^ 
-						  (intptr_t)std::get<FunctionTyTy>(fk);
+					auto fty = std::get<FunctionTyTy>(fk);
+
+					auto h = std::get<Graph<const Typed>>(fk)->GetHash() ^ get_hash(fty);
+
+					return h;
 				}
 			};
 
@@ -300,7 +323,7 @@ namespace K3 {
 				FunctionTyTy SizingFunctionCacheTy;
 
 				Pass(CTRef ast, BinaryenSpec& s, const std::string& l, Backends::BuilderPass pt, const CounterIndiceSet& counters) :build(s), CodeGenPass(l, ast, counters), passType(pt) {
-					SizingFunctionCacheTy = BinaryenAddFunctionType(s.M, nullptr, BinaryenTypeInt32(), nullptr, 0);
+//					SizingFunctionCacheTy = BinaryenAddFunctionType(s.M, nullptr, BinaryenTypeInt32(), nullptr, 0);
 				}
 
 				ModuleTy& GetModule() override {
@@ -354,7 +377,7 @@ namespace K3 {
 				sz = BinaryenUnary(M, BinaryenWrapInt64(), sz);
 			}		
 			
-			auto sp = BinaryenGetGlobal(M, STACK_PTR, BinaryenTypeInt32());
+			auto sp = BinaryenGlobalGet(M, STACK_PTR, BinaryenTypeInt32());
 
 			if (align > 4) {
 				sp =  BinaryenBinary(M, BinaryenAndInt32(), 
@@ -365,7 +388,7 @@ namespace K3 {
 			auto mem = TmpVar(sp);
 			
 			sp = BinaryenBinary(M, BinaryenAddInt32(), mem, sz);
-			b->instr.emplace_back(BinaryenSetGlobal(M, STACK_PTR, sp));
+			b->instr.emplace_back(BinaryenGlobalSet(M, STACK_PTR, sp));
 			return mem;
 		}
 
@@ -382,7 +405,7 @@ namespace K3 {
 		static BinaryenExpressionRef Relocatable(BinaryenModuleRef M, BinaryenExpressionRef offset) {
 			wasm::Module *mod = (wasm::Module*)M;
 			if (auto ds = mod->getGlobalOrNull(STATIC_DATA)) {
-				return BinaryenBinary(M, BinaryenAddInt32(), offset, BinaryenGetGlobal(M, STATIC_DATA, BinaryenTypeInt32()));
+				return BinaryenBinary(M, BinaryenAddInt32(), offset, BinaryenGlobalGet(M, STATIC_DATA, BinaryenTypeInt32()));
 			}
 			return offset;
 		}
@@ -429,15 +452,15 @@ namespace K3 {
 
 			wasm::Module *mod = (wasm::Module*)M;
 			BinaryenExpressionRef segOffset[] = {
-				mod->getGlobalOrNull(STATIC_DATA) ? BinaryenGetGlobal(M, STATIC_DATA, BinaryenTypeInt32()) : BinaryenConst(M, BinaryenLiteralInt32(0))
+				mod->getGlobalOrNull(STATIC_DATA) ? BinaryenGlobalGet(M, STATIC_DATA, BinaryenTypeInt32()) : BinaryenConst(M, BinaryenLiteralInt32(0))
 			};
 
 			BinaryenIndex segSize[] = {
 				(BinaryenIndex)dataBlob.size()
 			};
 
-			int8_t segPassive[] = {
-				0
+			bool segPassive[] = {
+				false
 			};
 
 			BinaryenSetMemory(M, (((int)dataBlob.size() + 65536) / 65536), 65535, memExportName, segData, segPassive, segOffset, segSize, 1, 0);

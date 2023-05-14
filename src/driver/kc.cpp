@@ -12,7 +12,8 @@
 #include "driver/package.h"
 
 #ifdef HAVE_LLVM
-#define LLVM_PARAMS F(emit_llvm, ll, false, "", "export symbolic assembly in the LLVM IR format")
+#define LLVM_PARAMS \
+	F(emit_llvm, ll, false, "", "export symbolic assembly in the LLVM IR format") 
 #else
 #define LLVM_PARAMS 
 #endif
@@ -30,7 +31,6 @@
 	F(input, i, std::string(""), "<path>", "input source file name; '-' for stdin") \
 	F(output, o, std::string(""), "<path>", "output file name, '-' for stdout") \
 	F(import_path, ip, std::list<std::string>(),"<path>", "Add paths to look for imports in") \
-	F(header, H, std::string(""), "<path>", "write a C/C++ header for the object to <path>, '-' for stdout") \
 	F(main, m, std::string("Main()"), "<expr>", "main; expression to compile") \
 	F(arg, a, std::string("nil"), "<expr>", "Kronos expression that determines the type of the external argument to main") \
 	F(assembly, S, false, "", "emit symbolic assembly") \
@@ -151,6 +151,11 @@ int main(int n, const char *carg[]) {
 
 			if (CL::output() != "-") {
 				file.open(CL::output(), std::ios::binary);
+
+				if (!file.is_open()) {
+					throw std::runtime_error("Can't open '"s + CL::output() + "' for writing."s);
+				}
+
 				stream = &file;
 				if (CL::output.Get().find('.') != std::string::npos) {
 					ext = CL::output().substr(CL::output().find_last_of('.'));
@@ -169,26 +174,10 @@ int main(int n, const char *carg[]) {
 			if (CL::quiet() == false) {
 				clog << CL::main() << " -> " << specialization.TypeOfResult() << endl;
 			}
-				
-			if (CL::header().empty( ) == false) {
-				std::ostream* stream = &std::cout;
-				std::ofstream headerFile;
-
-				if (CL::header() == "-") stream = &std::cout;
-				else {
-					headerFile.open(CL::header());
-					stream = &headerFile;
-				}
-
-				if (CL::quiet() == false) std::clog << "Writing " << CL::header() << "... ";
-				//MakeCppHeader(CL::prefix.Get().empty( ) ? "KronosDSP" : CL::prefix().c_str( ), myClass, GetNil( ), *stream);
-				if (CL::quiet() == false) std::clog << "OK\n";
-			}
-
+		
 			if (CL::quiet() == false && stream != &cout) {
 				clog << "Writing " << CL::output() << "... ";
 			}
-
 			
 			myContext.Make(CL::prefix().c_str(), ext.c_str(), 
 				*stream,

@@ -7,8 +7,6 @@
 #include "Invariant.h"
 #include "Reactive.h"
 
-#include "config/cxx.h"
-
 #include <sstream>
 #include <math.h>
 
@@ -488,9 +486,10 @@ namespace K3 {
 				GENERIC_NODE_INLINE(GBin, IGenericBinary)
 					PUBLIC
 					static GBin* New(CGRef a, CGRef b) { return new GBin(a, b); }
-				GBin(CGRef a, CGRef b) :IGenericBinary(a, b) {}
-				const char *PrettyName() const override { return Mnemonic[GetOpcode()]; }
-				Opcode GetOpcode() const override { return (Opcode)OPCODE; }
+					GBin(CGRef a, CGRef b) :IGenericBinary(a, b) {}
+					const char *PrettyName() const override { return Mnemonic[GetOpcode()]; }
+					Opcode GetOpcode() const override { return (Opcode)OPCODE; }
+
 				Specialization Specialize(SpecializationState& spec) const override {
 					SPECIALIZE(spec, a, GetUp(0));
 					SPECIALIZE(spec, b, GetUp(1));
@@ -553,7 +552,7 @@ namespace K3 {
 				}
 				END
 
-					return GBin::New(a, b);
+				return GBin::New(a, b);
 			}
 
 			template <int OPCODE> CGRef Make(
@@ -965,7 +964,7 @@ namespace K3 {
 
 		pack.AddFunction("BitShiftRight", Make<BitShiftRight>("BitShiftRight", nullptr, nullptr, [](int32_t a, int32_t b) {return a >> b; }, [](int64_t a, int64_t b) {return a >> b; }, nullptr, b1, b2), "a b", "Shifts the integer value 'a' right by 'b' bits");
 		pack.AddFunction("LogicalShiftRight", Make<LogicalShiftRight>("LogicalShiftRight", nullptr, nullptr, [](int32_t a, int32_t b) { return (int32_t)((uint32_t)a >> b); }, [](int64_t a, int64_t b) { return (int64_t)((uint64_t)a >> b); }, nullptr, b1, b2), "a b", "Shifts the integer value 'a' right by 'b' bits including the sign bit.");
-		pack.AddFunction("BitShiftLeft", Make<BitShiftLeft>("BitShiftLeft", nullptr, nullptr, [](int32_t a, int32_t b) {return a >> b; }, [](int64_t a, int64_t b) {return a << b; }, nullptr, b1, b2), "a b", "Shifts the integer value 'a' left by 'b' bits");
+		pack.AddFunction("BitShiftLeft", Make<BitShiftLeft>("BitShiftLeft", nullptr, nullptr, [](int32_t a, int32_t b) {return a << b; }, [](int64_t a, int64_t b) {return a << b; }, nullptr, b1, b2), "a b", "Shifts the integer value 'a' left by 'b' bits");
 
 		Make<Native::Abs>("abs", _ABS<float>, _ABS<double>, _ABS<std::int32_t>, _ABS<std::int64_t>, _ABS<BigNum>, arg);
 

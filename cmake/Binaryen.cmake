@@ -8,7 +8,7 @@ set(BINARYEN_BUILD_DIR "${EXT_BASE}/Build/binaryen")
 
 include(ExternalProject)
 
-set(BINARYEN_VERSION "version_84")
+set(BINARYEN_VERSION "version_105")
 
 if (EMSCRIPTEN) 
 	set(CMAKE_CMD "emcmake")
@@ -18,24 +18,18 @@ else()
 	set(CMAKE_ARGS "-DENABLE_WERROR=OFF" "-DBUILD_STATIC_LIB=ON")
 endif()
 
-if (WIN32)
-	ExternalProject_Add(
-		binaryen 
-		SVN_REPOSITORY "https://github.com/WebAssembly/binaryen.git/tags/${BINARYEN_VERSION}"
-		CMAKE_COMMAND "${CMAKE_CMD}"
-		CMAKE_ARGS ${CMAKE_ARGS}
-		BUILD_COMMAND cmake --build . --target binaryen
-		INSTALL_COMMAND "")
-else()
-	ExternalProject_Add(
-		binaryen 
-		GIT_REPOSITORY https://github.com/WebAssembly/binaryen.git
-		GIT_TAG ${BINARYEN_VERSION}
-		CMAKE_COMMAND "${CMAKE_CMD}"
-		CMAKE_ARGS ${CMAKE_ARGS}
-		BUILD_COMMAND cmake --build . --target binaryen -- -j4
-		INSTALL_COMMAND "")
-endif()
+ExternalProject_Add(
+	binaryen 
+	GIT_REPOSITORY https://github.com/WebAssembly/binaryen.git
+	GIT_TAG ${BINARYEN_VERSION}
+	CMAKE_COMMAND "${CMAKE_CMD}"
+	CMAKE_ARGS 
+		${CMAKE_ARGS}
+		"-DCMAKE_CXX_STANDARD=17" 
+		"-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" 
+		"-DCMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES}"
+	BUILD_COMMAND cmake --build . --target binaryen --config $<CONFIG>
+	INSTALL_COMMAND "")
 
 if (EMSCRIPTEN)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O2 -s STACK_OVERFLOW_CHECK=2 -s WARN_UNALIGNED=1 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0 -s DISABLE_EXCEPTION_THROWING=0 -s ASSERTIONS=2")

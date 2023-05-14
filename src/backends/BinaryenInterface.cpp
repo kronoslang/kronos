@@ -1,11 +1,11 @@
 #include "binaryen-c.h"
-#include "wasm-printing.h"
+#include <ostream>
 
 void BinaryenEmitWAST(BinaryenModuleRef M, std::ostream& writeToStream) {
-	wasm::WasmPrinter wp;
-	wp.printModule((wasm::Module*)M, writeToStream);
+	char *text = BinaryenModuleAllocateAndWriteText(M);
+	writeToStream << text;
+	free(text);
 }
 
 void BinaryenEmitAsmJS(BinaryenModuleRef M, std::ostream& writeToStream) {
-	abort();
 }

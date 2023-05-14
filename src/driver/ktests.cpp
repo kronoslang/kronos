@@ -27,7 +27,7 @@ std::string Green, Red, RedBG, Yellow, Blue, ResetColor;
 	F(demo, D, false, "", "play kseq tests as audio demos") \
 	F(dbserver, db, ""s, "<http(s)://url:port>", "couchdb instance for test results") \
 	F(dbauth, dba, ""s, "<auth-header>", "authorization header to pass to couchdb") \
-	F(dbtable, t, "/ci"s, "<database>", "test result database on server") \
+	F(dbtable, t, "ci"s, "<database>", "test result database on server") \
 	F(submit, S, false, "", "submit test run to the database.") \
 	F(bless, B, false, "", "submit as reference result") \
 	F(filter_tests, F, ".*"s, "<regex>", "only run tests that match <regex>") \
@@ -288,6 +288,8 @@ int main(int argc, const char* arg[]) {
 				CLOpts::package_version = "tip~";
 			}
 		}
+
+		std::clog << "* Test server " << CLOpts::dbserver() << (CLOpts::dbauth().empty() ? "\n" : "(authenticated)\n");
 
 		std::clog << "* Test server " << CLOpts::dbserver() << (CLOpts::dbauth().empty() ? "\n" : "(authenticated)\n");
 

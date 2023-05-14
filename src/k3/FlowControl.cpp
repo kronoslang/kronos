@@ -5,6 +5,7 @@
 #include "TypeAlgebra.h"
 #include "Native.h"
 #include "Conversions.h"
+#include "Reactive.h"
 #include "Invariant.h"
 
 namespace K3 {
@@ -152,7 +153,9 @@ namespace K3 {
 						v = v.First();
 						vg = vg->GraphFirst();
 					}
-
+                    
+                    vg = ReactiveOperators::Impose::New(A0.node, vg);
+                    
 					return Specialization(vg, v);
 				} else {
 					t.GetRep().Diagnostic(LogErrors, this, Error::TypeMismatchInSpecialization, A0.result, "Select can accept a constant index");
@@ -226,14 +229,17 @@ namespace K3 {
 
 		CTRef AtIndex::New(Type vectorTy, CTRef vector, CTRef index) {
 			Native::Constant *c;
-			if (index->Cast(c)) {
+            // constant propagation breaks reactive clock; disabled below
+			if (false && index->Cast(c)) {
 				assert(c->FixedResult().IsInt32());
 				int i = *(std::int32_t*)c->GetPointer();
 				auto svTy = vectorTy;
+                                
 				while (i--) {
 					vector = vector->GraphRest();
 					svTy = svTy.Rest();
 				}
+                                
 				// handle possible nil termination
 				if (svTy == vectorTy.First()) return vector;
 				else {

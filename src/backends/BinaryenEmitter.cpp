@@ -3,18 +3,38 @@
 
 #include <string>
 
+namespace std {
+	size_t hash<K3::Backends::BinaryenFunctionTypeRef>::operator()(K3::Backends::BinaryenFunctionTypeRef const& fty) const {
+		hash<BinaryenType> hasher;
+
+		auto h = hasher(fty.returnType);
+
+		for (auto&& at : fty.argumentType) {
+			h ^= hasher(at);
+		}
+
+		return h;
+	}
+}
+
 namespace K3 {
 	namespace Backends {
+		bool BinaryenFunctionTypeRef::operator==(const BinaryenFunctionTypeRef& other) const {
+			return std::equal(argumentType.cbegin(), argumentType.cend(),
+				other.argumentType.cbegin(), other.argumentType.cend())
+				&& returnType == other.returnType;
+		}
+
 		BinaryenExpressionRef BinaryenEmitter::FnArg(int i, BinaryenType ty) {
-			return BinaryenGetLocal(M, i, ty);
+			return BinaryenLocalGet(M, i, ty);
 		}
 
 		BinaryenExpressionRef BinaryenEmitter::FnArg(int i) {
-			return BinaryenGetLocal(M, i, BinaryenFunctionTypeGetParam(fn.d->ty, i));
+			return BinaryenLocalGet(M, i, fn.d->ty.argumentType[i]);
 		}
 
 		int BinaryenEmitter::NumFnArgs() {
-			return BinaryenFunctionTypeGetNumParams(fn.d->ty);
+			return fn.d->GetNumParams();
 		}
 
 		BinaryenExpressionRef BinaryenEmitter::GetSlot(int index) {
@@ -23,7 +43,7 @@ namespace K3 {
 			if (!Mod->getGlobalOrNull(name)) {
 				BinaryenAddGlobal(M, name.c_str(), BinaryenTypeInt32(), 1, Const(0));
 			}
-			return BinaryenGetGlobal(M, name.c_str(), BinaryenTypeInt32());
+			return BinaryenGlobalGet(M, name.c_str(), BinaryenTypeInt32());
 		}
 
 		static void DeclareGVar(BinaryenModuleRef M, const std::string& name, BinaryenType ty, BinaryenExpressionRef constant = nullptr) {
@@ -42,7 +62,7 @@ namespace K3 {
 
 		BinaryenExpressionRef BinaryenEmitter::GVar(const std::string& name, BinaryenType ty) {
 			DeclareGVar(M, name, ty);
-			b->instr.push_back(BinaryenGetGlobal(M, name.c_str(), ty));
+			b->instr.push_back(BinaryenGlobalGet(M, name.c_str(), ty));
 			return b->instr.back();
 		}
 
@@ -52,14 +72,14 @@ namespace K3 {
 				DeclareGVar(M, name, BinaryenExpressionGetType(value), value);
 			} else {
 				DeclareGVar(M, name, BinaryenExpressionGetType(value), constant);
-				b->instr.push_back(BinaryenSetGlobal(M, name.c_str(), value));
+				b->instr.push_back(BinaryenGlobalSet(M, name.c_str(), value));
 			}
 		}
 
 
 		void BinaryenEmitter::SetSlot(int index, BinaryenExpressionRef val) {
 			Use(val);
-			b->instr.emplace_back(BinaryenSetGlobal(M, ("slot" + std::to_string(index)).c_str(), val));
+			b->instr.emplace_back(BinaryenGlobalSet(M, ("slot" + std::to_string(index)).c_str(), val));
 		}
 
 		BinaryenExpressionRef BinaryenEmitter::PtrToInt(BinaryenExpressionRef ptr) { return ptr; }
@@ -80,7 +100,7 @@ namespace K3 {
 		BinaryenExpressionRef BinaryenEmitter::Call(const BinaryenFunction& fn, const std::vector<BinaryenExpressionRef>& params, bool internalCall) {
 			if (fn.d != this->fn.d) fn.Complete();
 			for (auto &p : params) Use(p);
-			auto fncall = BinaryenCall(M, fn.d->name.c_str(), (BinaryenExpressionRef*)params.data(), (int)params.size(), BinaryenFunctionTypeGetResult(fn.d->ty));
+			auto fncall = BinaryenCall(M, fn.d->name.c_str(), (BinaryenExpressionRef*)params.data(), (int)params.size(), (fn.d->ty.returnType));
 			b->instr.emplace_back(fncall);
 			return fncall;
 		}
@@ -88,13 +108,13 @@ namespace K3 {
 		BinaryenExpressionRef BinaryenEmitter::PureCall(const BinaryenFunction& fn, const std::vector<BinaryenExpressionRef>& params, bool internalCall) {
 			if (fn.d != this->fn.d) fn.Complete();
 #ifndef NDEBUG
-			assert(BinaryenFunctionTypeGetNumParams(fn.d->ty) == params.size());
+			assert(fn.d->GetNumParams() == params.size());
 			for (int i = 0;i < params.size();++i) {
 				Use(params[i]);
-				assert(BinaryenFunctionTypeGetParam(fn.d->ty, i) == BinaryenExpressionGetType(params[i]));
+				assert(fn.d->ty.argumentType[i] == BinaryenExpressionGetType(params[i]));
 			}
 #endif
-			auto fncall = BinaryenCall(M, fn.d->name.c_str(), (BinaryenExpressionRef*)params.data(), (int)params.size(), BinaryenFunctionTypeGetResult(fn.d->ty));
+			auto fncall = BinaryenCall(M, fn.d->name.c_str(), (BinaryenExpressionRef*)params.data(), (int)params.size(), fn.d->ty.returnType);
 			return fncall;
 		}
 
@@ -135,14 +155,14 @@ namespace K3 {
 			outSubIdx = bitIdx % 32;
 			auto sigmask = "sigmask" + std::to_string(wordIdx);
 			DeclareGVar(M, sigmask, BinaryenTypeInt32());
-			return BinaryenGetGlobal(M, sigmask.c_str(), BinaryenTypeInt32());
+			return BinaryenGlobalGet(M, sigmask.c_str(), BinaryenTypeInt32());
 		}
 
 		void BinaryenEmitter::StoreSignalMaskWord(int bitIdx, BinaryenExpressionRef word) {
 			int wordIdx = bitIdx / 32;
 			auto sigmask = "sigmask" + std::to_string(wordIdx);
 			DeclareGVar(M, sigmask, BinaryenTypeInt32());
-			b->instr.push_back(BinaryenSetGlobal(M, sigmask.c_str(), word));
+			b->instr.push_back(BinaryenGlobalSet(M, sigmask.c_str(), word));
 		}
 
 		BinaryenExpressionRef BinaryenEmitter::NonZero(BinaryenExpressionRef v) {
@@ -163,12 +183,12 @@ namespace K3 {
 			KRONOS_UNREACHABLE;
 		}
 
-		BinaryenType BinaryenEmitter::FnArgTy(BinaryenFunctionTypeRef fnTy, int index) {
-			return BinaryenFunctionTypeGetParam(fnTy, index);
+		BinaryenType BinaryenEmitter::FnArgTy(BinaryenFunctionTypeRef const& fnTy, int index) {
+			return fnTy.argumentType[index];
 		}
 
-		int BinaryenEmitter::NumFnArgs(BinaryenFunctionTypeRef fnTy) {
-			return BinaryenFunctionTypeGetNumParams(fnTy);
+		int BinaryenEmitter::NumFnArgs(BinaryenFunctionTypeRef const& fnTy) {
+			return (int)fnTy.argumentType.size();
 		}
 
 		void BinaryenEmitter::TCO(BinaryenExpressionRef cond, const std::vector<BinaryenValue>& params) {
@@ -206,20 +226,15 @@ namespace K3 {
 					bl = BinaryenLoop(d->M, TCO_RECURSION, bl);
 				}
 
-				if (Mod->getFunctionTypeOrNull(BinaryenFunctionTypeGetName(d->ty)) == nullptr) {
-					std::clog << "Type not found\n";
-					//Mod->addFunctionType((wasm::FunctionType*)d->ty);
-				}
-
 				BinaryenExpressionRef saveStack[] = {
-					BinaryenSetLocal(d->M, BinaryenFunctionTypeGetNumParams(d->ty),
-					BinaryenGetGlobal(d->M, STACK_PTR, BinaryenTypeInt32())),
+					BinaryenLocalSet(d->M, d->GetNumParams(),
+					BinaryenGlobalGet(d->M, STACK_PTR, BinaryenTypeInt32())),
 					bl
 				};
 
 				bl = ::BinaryenBlock(d->M, nullptr, saveStack, 2, BinaryenTypeAuto());
 
-				d->fn = BinaryenAddFunction(d->M, nm.c_str(), d->ty, d->lvars.data(), (int)d->lvars.size(), bl);
+				d->fn = BinaryenAddFunction(d->M, nm.c_str(), d->GetParamType(), d->ty.returnType, d->lvars.data(), (int)d->lvars.size(), bl);
 				d->emitted = true;
 			}
 		}
@@ -227,7 +242,7 @@ namespace K3 {
 		BinaryenIndex BinaryenFunction::LVar(const std::string& nm, BinaryenType vty) {
 			assert(vty != BinaryenTypeNone());
 			d->lvars.push_back(vty);
-			return (int)(BinaryenFunctionTypeGetNumParams(d->ty) + d->lvars.size() - 1);
+			return (int)(d->GetNumParams() + d->lvars.size() - 1);
 		}
 
 		BinaryenIndex BinaryenFunction::LVar(BinaryenExpressionRef expr) {
@@ -501,9 +516,9 @@ namespace K3 {
 		BinaryenExpressionRef BinaryenEmitter::GlobalExternal(BinaryenType t, const std::string& mod, const std::string& sym) {
 			auto Mod = (wasm::Module*)M;
 			if (Mod->getGlobalOrNull(sym) == nullptr) {
-				BinaryenAddGlobalImport(M, sym.c_str(), mod.c_str(), sym.c_str(), t);
+				BinaryenAddGlobalImport(M, sym.c_str(), mod.c_str(), sym.c_str(), t, true);
 			}
-			return BinaryenGetGlobal(M, sym.c_str(), t);
+			return BinaryenGlobalGet(M, sym.c_str(), t);
 		}
 
 		BinaryenExpressionRef BinaryenEmitter::CallExternal(BinaryenType returnTy, const std::string& sym, const std::vector<BinaryenExpressionRef>& params) {
@@ -534,18 +549,11 @@ namespace K3 {
 				returnTy = BinaryenTypeNone();
 			}
 
-			auto fty = BinaryenAddFunctionType(M, nullptr, returnTy, paramTys.data(), (int)paramTys.size());
-
 			auto Mod = (wasm::Module*)M;
 			if (Mod->getFunctionOrNull(sym.c_str()) == nullptr) {
-				BinaryenAddFunctionImport(M, sym.c_str(), "import", sym.c_str(), fty);
+				auto paramTypes = BinaryenTypeCreate(paramTys.data(), paramTys.size());
+				BinaryenAddFunctionImport(M, sym.c_str(), "import", sym.c_str(), paramTypes, returnTy);
 			}
-
-#ifndef NDEBUG
-			for (int i = 0;i < BinaryenFunctionTypeGetNumParams(fty); ++i) {
-				assert(BinaryenFunctionTypeGetParam(fty, i) == BinaryenExpressionGetType(pass[i]));
-			}
-#endif
 
 			auto fncall = BinaryenCall(M, sym.c_str(), (BinaryenExpressionRef*)pass.data(), (int)pass.size(), returnTy);
 

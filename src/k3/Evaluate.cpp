@@ -11,7 +11,6 @@
 #include "EnumerableGraph.h"
 #include "TLS.h"
 #include "LibraryRef.h"
-#include "config/cxx.h"
 #include <iostream>
 
 #include <sstream>

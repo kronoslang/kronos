@@ -30,7 +30,7 @@ namespace K3 {
 				};
 
 				BinaryenAddFunctionImport(M, "alloca", "builtin", "alloca",
-										  BinaryenAddFunctionType(M, nullptr, BinaryenTypeInt32(), params, 2));
+					BinaryenTypeCreate(params, 2), BinaryenTypeInt32());
 			}
 
 			~BinaryenSpec() {

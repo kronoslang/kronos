@@ -1576,7 +1576,9 @@ namespace K3
 				auto buf = Buffer::New(sfx, Native::Constant::New(int64_t(t.GetSize())), Buffer::Module, 16);
 				initializer = Deps::New(buf, sfx.CopyData(DataSource::New(buf, layout), initializer, 
 									    sfx.GetSymbolTable().GetInitializerReactivity(), true, true, true));
-			} 
+            }  else {
+                initializer = Typed::Nil();
+            }
 
 			if (key.IsNil() == false) {
 				sfx.GetSymbolTable().RegisterExternalVariable(key, t, uid, k, vectorRate, clock);

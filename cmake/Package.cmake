@@ -17,7 +17,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Kronos - A compiler for musical signal pr
 set(CPACK_WIX_PROGRAM_MENU_FOLDER  "Kronos Compiler Suite")
 set(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/package/kronos-icon.ico")
 set(CPACK_WIX_UPGRADE_GUID d7b262a0-2efc-4ec6-9506-537e3d959507)
-set(CPACK_WIX_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/package/msvc14_wix.wxi.in.xml")
+# set(CPACK_WIX_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/package/msvc14_wix.wxi.in.xml")
 set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY Kronos)
 set(CPACK_WIX_EXTENSIONS WixUIExtension WixUtilExtension)
 set(CPACK_WIX_EXTRA_FLAGS sw)
@@ -34,7 +34,6 @@ set(CPACK_DEBIAN_PACKAGE_PROVIDES "kronos,krepl,kc,krpc,ktests,klangsrv")
 # stripping removes all the kvm_* functions that are dynamically linked to
 
 set(CPACK_BUNDLE_NAME "kronos")
-
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/package/installer_eula.rtf")
 
 set(CPACK_COMPONENT_CORE_DISPLAY_NAME "Core")
@@ -59,7 +58,10 @@ set(_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(_INCDIR ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (WIN32)
-	install( FILES package/install_vcredist.bat DESTINATION bin COMPONENT core )
+	install( FILES package/kronos_shell.bat 
+			 DESTINATION "/"
+			 COMPONENT core)
+	set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY kronos)
 elseif(APPLE)
 	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/")
 	set(CMAKE_INSTALL_PREFIX "/usr/local/")
@@ -130,13 +132,6 @@ install(FILES
 	"${CMAKE_CURRENT_BINARY_DIR}/Kronos/KronosConfigVersion.cmake"
 	DESTINATION ${ConfigPackageLocation}
 	COMPONENT cxxdev)
-
-if (WIN32) 
-	install( FILES package/kronos_shell.bat 
-			 DESTINATION "/"
-			 COMPONENT core)
-	set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY kronos)
-endif()
 
 if (APPLE)
 	set(CPACK_OSX_PACKAGE_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})

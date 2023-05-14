@@ -1,5 +1,4 @@
 #include "PlatformUtils.h"
-#include "config/cxx.h"
 #include "config/system.h"
 #include <time.h>
 #include <cassert>

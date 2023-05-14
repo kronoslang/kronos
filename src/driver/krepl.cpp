@@ -20,7 +20,7 @@ using namespace std::string_literals;
 #define EXPAND_PARAMS \
 	F(deterministic_scheduling, ds, false, "", "Only execute a script once all dependencies are compiled as well")\
 	F(interactive, I, false, "", "Prompt the user for additional expressions to evaluate") \
-	F(format, f, "text"s, "<text|edn|xml>","Format REPL responses as...") \
+	F(type_diagnostics, d, ""s, "<file.xml>", "Dump type error diagnostics as a detailed XML trace") \
 	F(import, i, std::list<std::string>(), "<module>", "Import source file <module>" ) \
 	F(help, h, false, "", "help; display this user guide")
 
@@ -57,6 +57,12 @@ int krepl_main(CmdLine::IRegistry& CLOpts, Kronos::IO::IConfiguringHierarchy* io
 		if (auto badOption = CLOpts.Parse(args)) {
 			throw std::invalid_argument("Unknown command line option: "s + badOption);
 		}
+        
+        std::unique_ptr<IO::IConfiguringHierarchy> ownedHierarchy;
+        if (io == nullptr) {
+            ownedHierarchy = IO::CreateCompositeIO();
+            io = ownedHierarchy.get();
+        }
 
 		std::list<std::string> repl_args;
 		for (auto &a : args) repl_args.emplace_back(a);
@@ -101,8 +107,10 @@ int krepl_main(CmdLine::IRegistry& CLOpts, Kronos::IO::IConfiguringHierarchy* io
 		REPL::CompilerConfigurer cfg{ compiler, io };
 
 		compiler.SetLogFormatter([](Context& cx, const std::string& xml, std::ostream& fmt) {
-			std::ofstream xmlDump{ "type-error.xml" };
-			xmlDump << xml;
+			if (CL::type_diagnostics().size()) { 
+				std::ofstream xmlDump{ CL::type_diagnostics() };
+				xmlDump << xml;
+			}
 			FormatErrors(xml.c_str(), fmt, cx, -4);
 		});
 

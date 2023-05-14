@@ -16,6 +16,8 @@
 #include <locale>
 #include <regex>
 #include <iostream>
+#include <functional>
+#include <utility>
 
 #ifdef HAVE_LLVM
 #pragma warning(disable: 4126 4267)
@@ -56,7 +58,8 @@ namespace K3 {
 
 		build.AddFunction("Eval", Nodes::Evaluate::New("eval", b1, b2), "fn arg...", "Evaluates 'fn' as a function with the arguments in 'arg...'");
 
-		build.AddFunction("External", Nodes::GenericExternalVariable::New(b1, b2), "key default", "External input declaration with the identifier 'key' and type and default value provided by 'default'");
+		build.AddFunction("External", Nodes::GenericExternalVariable::New(b1, b2, false), "key default", "External input declaration with the identifier 'key' and type and default value provided by 'default'");
+        build.AddFunction("External-Unsafe", Nodes::GenericExternalVariable::New(b1, b2, true), "key default", "External input declaration with the identifier 'key' and type and default value provided by 'default'. The input will not be initialized and must be bound by whomever uses the circuit, before invoking any code that touches the value.");
 		build.AddFunction("External-Stream", Nodes::GenericStreamInput::New(b1, Nodes::GenericFirst::New(b2), Nodes::GenericRest::New(b2)), "stream-key default clock", "Stream input to this module from an external vector. The sample rate of the buffer is determined by 'clock'.");
 		build.AddFunction("External-Asset", Nodes::GenericAsset::New(arg), "uri", "Loads an asset from 'uri' and returns its contents.");
         build.AddMacro("Audio-File-Tag", Nodes::Invariant::Constant::New(Type(&AudioFileTag)), true);
@@ -72,7 +75,7 @@ namespace K3 {
 		BuildVectorPrimitiveOps(build.AddPackage("Vector"));
 	}
 
-	CMAKE_THREAD_LOCAL TLS* __instance = 0;
+	thread_local TLS* __instance = 0;
     
     Asset::Asset():memory(nullptr, free) {
     }

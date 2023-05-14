@@ -23,6 +23,7 @@ namespace K3 {
 				Internal,
 				External,
 				Stream,
+                UnsafeExternal,
 				NumVarTypes
 			};
 
@@ -93,9 +94,10 @@ namespace K3 {
 			END
 
 			GENERIC_NODE(GenericExternalVariable,GenericBinary)
-			GenericExternalVariable(CGRef key, CGRef initializer):GenericBinary(key,initializer){}
+                bool unsafe;
+                GenericExternalVariable(CGRef key, CGRef initializer,bool unsafe):GenericBinary(key,initializer), unsafe(unsafe) { }
 			PUBLIC
-				static GenericExternalVariable* New(CGRef key, CGRef initializer) {return new GenericExternalVariable(key,initializer);}
+				static GenericExternalVariable* New(CGRef key, CGRef initializer, bool unsafe) {return new GenericExternalVariable(key,initializer,unsafe);}
 			END
 
 			GENERIC_NODE(GenericStreamInput,GenericTernary)

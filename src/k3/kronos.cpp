@@ -4,7 +4,6 @@
 #include "Type.h"
 #include "Parser.h"
 #include "kronos.h"
-#include "config/cxx.h"
 #include "Invariant.h"
 #include "config/system.h"
 #include "LibraryRef.h"
@@ -92,7 +91,7 @@ namespace {
 		}
 	};
 
-	static CMAKE_THREAD_LOCAL IError* lastError = nullptr;
+	static thread_local IError* lastError = nullptr;
 
 	template <typename T>
 	struct ErrorHandler {

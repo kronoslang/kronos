@@ -37,6 +37,19 @@ namespace K3 {
 		Specialization GenericExternalVariable::Specialize(SpecializationState& spec) const {
 			SPECIALIZE(spec, key, GetUp(0));
 			SPECIALIZE(spec, init, GetUp(1));
+            
+            if (unsafe) {
+                auto initType = init.result.Fix();
+
+                return Specialization(
+                  GetGlobalVariable::New(TLS::GetCurrentInstance()->Memoize(key.result.Fix()),
+                                         initType,
+                                         key.result.Fix(),
+                                         std::make_pair(1,1),
+                                         nullptr,
+                                         UnsafeExternal),
+                                      initType);
+            }
 
 			if (spec.mode == SpecializationState::Configuration) {
 				return init;

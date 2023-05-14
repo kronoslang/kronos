@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include "RegionNode.h"
-#include "config/cxx.h"
 #ifndef NDEBUG
 #define GUARD_REGION 0
 #include <iostream>
@@ -57,7 +56,7 @@ MemoryRegion::~MemoryRegion()
 	}
 }
 
-CMAKE_THREAD_LOCAL MemoryRegion* CurrentRegion = 0;
+thread_local MemoryRegion* CurrentRegion = 0;
 MemoryRegion* MemoryRegion::GetCurrentRegion()
 {
 	return CurrentRegion;

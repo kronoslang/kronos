@@ -575,10 +575,12 @@ namespace K3 {
 			llvm::Value* ptr = b.CreateLoad(ptrPtr);
 			if (lt.IsInitPass()) {
 				if (GetUp(0)) {
-					llvm::Value* init = lt(GetUp(0));
-					ptr = b.CreateSelect(
-						b.CreateICmpNE(ptr, Constant::getNullValue(ptr->getType())), ptr, init);
-					b.CreateStore(ptr, ptrPtr);
+                    if (!IsNil(GetUp(0))) {
+                        llvm::Value* init = lt(GetUp(0));
+                        ptr = b.CreateSelect(
+                                             b.CreateICmpNE(ptr, Constant::getNullValue(ptr->getType())), ptr, init);
+                        b.CreateStore(ptr, ptrPtr);
+                    }
 				} else {
 					auto fn = lt.GetModule()->getOrInsertFunction("GetConfigurationSlot", 
 																  llvm::FunctionType::get(lt.GetBuilder().getInt8PtrTy(), { lt.GetBuilder().getInt32Ty() }, false));

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <cstddef>
 
 std::unordered_map<void*,void*>* __dynscp_tls();
 void __dynscp_tls_dtor(void *key);

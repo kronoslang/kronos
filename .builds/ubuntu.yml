@@ -1,0 +1,20 @@
+image: ubuntu/20.04
+packages:
+- cmake g++ python3 libsndfile-dev libtinyxml-dev libreadline6-dev llvm-6.0-dev libcurl4-openssl-dev zlib1g-dev libjack-dev
+sources:
+- hg+https://hg.sr.ht/~vnorilo/kronos
+tasks:
+- configure: |
+    mkdir build
+    cd build
+    cmake ../kronos -DCMAKE_BUILD_TYPE=Release
+- build: |
+    cd build
+    make -j8 
+- test: |
+    cd build
+    make test
+triggers:
+- action: email
+  condition: failure
+  to: <vn@imap.cc>

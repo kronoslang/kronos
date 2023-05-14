@@ -205,7 +205,7 @@ public:
 	}
 
 	bool DumpAudio(const char *fileName) override {		
-		const float SilenceThreshold = 0.01;
+		const float SilenceThreshold = 0.01f;
 
 		if (dump.size()) {
 			auto file = PAF::AudioFileWriter(fileName);

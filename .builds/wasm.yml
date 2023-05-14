@@ -1,0 +1,24 @@
+image: ubuntu/20.04
+packages:
+- cmake
+sources:
+- hg+https://hg.sr.ht/~vnorilo/kronos
+tasks:
+- configure: |
+    set -ex
+    git clone --depth 1 https://github.com/emscripten-core/emsdk.git
+    emsdk/emsdk install latest
+    emsdk/emsdk activate latest
+    chmod 777 emsdk/emsdk_env.sh
+    . ./emsdk/emsdk_env.sh 
+    mkdir build
+    cd build
+    emcmake cmake ../kronos -DCMAKE_BUILD_TYPE=Release
+- build: |
+    . ./emsdk/emsdk_env.sh 
+    cd build
+    make -j8 kronos veneer
+triggers:
+- action: email
+  condition: failure
+  to: <vn@imap.cc>

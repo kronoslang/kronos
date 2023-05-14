@@ -22,6 +22,10 @@
 
 #include "LLVMCmdLine.h"
 
+namespace CL {
+	CmdLine::Option<string> LlvmHeader(std::string(""), "--llvm-header", "-H", "<path>", "write a C/C++ header for the LLVM-generated object to <path>, '-' for stdout");
+}
+
 namespace {
 
 	class CompilationPass : public virtual Backends::ILLVMCompilationPass, public CodeGenPass {
@@ -334,22 +338,25 @@ namespace K3 {
 					auto slotI = globalSymbolTable.find(gv.second.uid);
 					auto slotIndex = slotI != globalSymbolTable.end() ? std::int32_t(slotI->second) : -1;
 
-					bool noDefaultVal =
+					bool constructorParameter =
 						((gv.second.varType == External || 
 						  gv.second.varType == Configuration) 
 						 && globalKeyTable.find(gv.first) != globalKeyTable.end());
-
-					bool drivesOutput =
-						trigger != inputCall.end() &&
-						gv.second.clock.IsNil() == false &&
- 						Qxx::FromGraph(intermediateAST->GetReactivity())
-						.OfType<Reactive::DriverNode>()
-						.Where([drv = DriverSignature(gv.second.clock)](auto dn) {
-								return dn->GetID() == drv.GetMetadata();	
-							})
-						.Any();
-					
-
+                    
+					if (slotIndex >= 0) {
+						std::stringstream driverName;
+						if (gv.second.varType == Stream) {
+							gv.second.clock.OutputText(driverName);
+						}
+						cppHeader.DeclareSlot(sym.str(), slotIndex, gv.second.data, constructorParameter, driverName.str());
+					}
+							
+					if (trigger != inputCall.end()) {
+						cppHeader.DeclareDriver(trigger->second->getName());
+					}
+                    
+                    bool noDefaultVal = constructorParameter || gv.second.varType == UnsafeExternal;
+				
 					symTableEntry.emplace_back(
 						ConstantStruct::get(symTy, {
 							ir.constant(sym.str()),
@@ -359,7 +366,6 @@ namespace K3 {
 							ir.constant(slotIndex),
 							ir.constant(
 								(noDefaultVal ? KRT_FLAG_NO_DEFAULT : 0) |
-								(drivesOutput ? KRT_FLAG_DRIVES_OUTPUT : 0) |
 								(gv.second.varType == Stream ? KRT_FLAG_BLOCK_INPUT : 0))
 						}));
 

@@ -1,9 +1,8 @@
-#include "config/cxx.h"
 #include "DynamicScope.h"
 
 std::unordered_map<void*,void*>* __dynscp_tls()
 {
-		static CMAKE_THREAD_LOCAL std::unordered_map<void*,void*> *tls_hash = 0;		
+		static thread_local std::unordered_map<void*,void*> *tls_hash = 0;		
 		if (tls_hash == 0) tls_hash = new std::unordered_map<void*,void*>;
 		return tls_hash;
 }

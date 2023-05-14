@@ -24,7 +24,7 @@ namespace K3 {
 				FunctionKey(const Graph<const Typed>& key, FunctionTyTy fty) :std::tuple<FunctionTyTy, Graph<const Typed>>(fty, key) {}
 				FunctionTyTy GetFunctionTy() const { return std::get<0>(*this); }
 				Graph<const Typed> GetGraph() const { return std::get<1>(*this); }
-				size_t GetHash() const { return GetGraph()->GetHash(true) ^ (size_t)GetFunctionTy(); }
+				size_t GetHash() const { return GetGraph()->GetHash(true) ^ std::hash<FunctionTyTy>()(GetFunctionTy()); }
 				bool operator==(const FunctionKey& rhs) const { return (CTRef)GetGraph() == (CTRef)rhs.GetGraph() && GetFunctionTy() == rhs.GetFunctionTy(); }
 			};
 

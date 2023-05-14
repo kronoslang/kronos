@@ -6,7 +6,7 @@
 namespace Kronos {
 	namespace IO {
 		namespace o2 {
-			void Setup(IRegistry&, IConfigurationDelegate*);
+			std::unique_ptr<IHierarchy> Setup(IRegistry&, IConfigurationDelegate*);
 		}
 	}
 }

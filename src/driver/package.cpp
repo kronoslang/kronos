@@ -7,6 +7,7 @@
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <regex>
 
 #define KRONOS_USER_AGENT "Kronos WebRequest/" KRONOS_PACKAGE_VERSION
 
@@ -204,11 +205,12 @@ WebResponse WebRequest(std::string method, std::string server, std::string page,
     auto curl = Wrap(curl_easy_init());
     if (curl) {
 //		curl_easy_setopt(curl.get(), CURLOPT_VERBOSE, 1L);
-        CHECK(curl_easy_setopt(curl.get(), CURLOPT_URL, (server + page).c_str()));
+        CHECK(curl_easy_setopt(curl.get(), CURLOPT_URL, (server + "/" + page).c_str()));
         CHECK(curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, curl_write));
 		std::vector<char> result;
 		CHECK(curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result));
 		CHECK(curl_easy_setopt(curl.get(), CURLOPT_USERAGENT, KRONOS_USER_AGENT " (libCURL)"));
+		CHECK(curl_easy_setopt(curl.get(), CURLOPT_FOLLOWLOCATION, 1));
 
 		curl_body cbody{ (const char*)body, bodySize };
 		if (bodySize) {
@@ -328,11 +330,15 @@ namespace Packages {
 	}
 
 	std::string CloudClient::GetLocalFilePath(std::string pack, std::string version) const {
-		if (version.size() && version.back() == '~') {
-			// mutable tag: use commit
-			version.pop_back();
-			return fileSystemLocation + pack + "/" + version + "-" + GetCommitHash(pack, version) + "/";
+		static std::regex semver{"[0-9]+\\.[0-9]+(\\.[0-9]+)?"};
+		if (std::regex_match(version, semver)) {
+			return fileSystemLocation + pack + "/" + version + "/";
 		} else {
+			if (version.size() && version.back() == '~') {
+				// legacy: tilde indicates moving ref
+				version.pop_back();
+				version = version + "-" + GetCommitHash(pack, version);
+			}
 			return fileSystemLocation + pack + "/" + version + "/";
 		}
 	}

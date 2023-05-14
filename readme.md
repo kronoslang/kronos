@@ -56,15 +56,17 @@ Get Xcode from the app store. Then you can install the dependencies via [Homebre
 brew install cmake mercurial subversion
 ```
 
-#### Ubuntu ####
+#### Ubuntu 20.04 LTS ####
 
 ```
-sudo apt-get install g++ python3 cmake mercurial libsndfile-dev libtinyxml-dev libreadline6-dev
+sudo apt-get install g++ python cmake mercurial libjack-dev libsndfile-dev libtinyxml-dev libreadline-dev libcurl4-openssl-dev
+# optionally install system llvm if you don't want to build it
+sudo apt-get install llvm-6.0-dev
 ```
 
 ### Configuration ###
 
-The easiest way to get Kronos configured is to use the [buildbot script](https://bitbucket.org/vnorilo/k3bot). By default, the bot performs continuous integration and delivery. You can skip the integration and just build locally by using:
+The easiest way to get Kronos configured, especially if you will build LLVM yourself, is to use the [buildbot script](https://bitbucket.org/vnorilo/k3bot). By default, the bot performs continuous integration and delivery. You can skip the integration and just build locally by using:
 
 ```
 cd <workspace>
@@ -74,6 +76,16 @@ cmake --build .
 ```
 
 This will download, configure and compile LLVM and Kronos. Alternatively you can install a precompiled LLVM 6.x and add the configuration option -DUSE_SYSTEM_LLVM=True
+
+If k3bot configuration succeeds but you have problems building the tip of the repository, which is not necessarily stable, please try the latest release instead.
+
+```
+cd Source/kronos
+hg tags
+hg up <some-tag>
+cd ../../Build/kronos
+make
+```
 
 You can build the install target to put the resulting binaries in your system path. On Unix-like systems the binaries are put in either /usr or /usr/local, split into bin and lib. The runtime library is put in /share/kronos/Lib under the prefix. On Windows, the prefix will be an user-specified location in Program Files. 
 

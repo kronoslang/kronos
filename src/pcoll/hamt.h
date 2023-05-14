@@ -73,7 +73,8 @@ namespace pcoll {
 			}
 
 			static size_t minimal_size(index_t for_num_elements) {
-				return offsetof(my_t, data[for_num_elements]);
+				constexpr size_t element_size = ((sizeof(ELEMENT) + alignof(ELEMENT) - 1) / alignof(ELEMENT)) * alignof(ELEMENT);
+				return offsetof(my_t, data) + element_size * for_num_elements;
 			}
 
 			size_t minimal_size() const noexcept {

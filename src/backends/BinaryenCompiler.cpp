@@ -56,7 +56,7 @@ namespace K3 {
 
 		CODEGEN_EMIT(SubroutineStateAllocation) {
 			if (xfm.IsSizingPass()) {
-				return subr->Compile(xfm, avm);
+				return (decltype(xfm(this, avm)))subr->Compile(xfm, avm);
 			} else {
 				return 
 					xfm->Offset(
@@ -218,7 +218,7 @@ namespace K3 {
 			std::string cfgName = "dconf_" + std::to_string((std::uintptr_t)cfg);
 			if (xfm.IsSizingPass()) {
 				xfm.GetCompilationPass().SetPassType(Backends::BuilderPass::InitializationWithReturn);
-				auto val = xfm->TmpVar(cfg->Compile(xfm, avm));
+				auto val = xfm->TmpVar((decltype(xfm(this, avm)))cfg->Compile(xfm, avm));
 				xfm.GetCompilationPass().SetPassType(Backends::BuilderPass::Sizing);
 				xfm->SetGVar(cfgName, val, true);
 				return val;

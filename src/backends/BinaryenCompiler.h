@@ -122,7 +122,7 @@ namespace K3 {
 					return state.var;
 				}
 
-				BinaryenExpressionRef val = n->Compile(*this, currentActivityMask);
+				BinaryenExpressionRef val = (BinaryenExpressionRef)n->Compile(*this, currentActivityMask);
 				if (!val) return val;
 
 				if (inBranch) {
