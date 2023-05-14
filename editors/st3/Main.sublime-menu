@@ -1,0 +1,56 @@
+[{
+	"id": "preferences",
+	"children": [
+		{
+			"caption": "Package Settings",
+			"mnemonic": "P",
+			"id": "package-settings",
+			"children": [{
+					"caption": "Kronos",
+					"children": [
+						{
+							"caption": "Settings",
+							"command": "edit_settings",
+							"args": {
+								"base_file": "${packages}/Kronos/Kronos.sublime-settings",
+								"default": "// Settings here override those in \"Kronos/Kronos.sublime-settings\",\n\n{\n\t$0\n}\n"
+							}
+						},
+						{
+							"caption": "Key Bindings",
+							"command": "edit_settings",
+							"args": {
+								"base_file": "${packages}/Kronos/Default (${platform}).sublime-keymap",
+								"user_file": "${packages}/User/Default (${platform}).sublime-keymap"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+},
+{
+    "id" : "kronos-repl",
+    "caption" : "Kronos",
+	"children": [{
+		"id": "krepl",
+		"caption": "Send to REPL",
+		"command": "krepl"
+	},
+	{
+		"id": "krepl_instance",
+		"caption": "Instantiate in REPL",
+		"command": "krepl_instance"
+	},
+	{
+		"id": "krepl_panic",
+		"caption": "Panic!",
+		"command": "krepl_panic"
+	},
+	{
+		"id": "krepl_reload",
+		"caption": "Kill REPL Process",
+		"command": "krepl_restart"
+	}
+]}]

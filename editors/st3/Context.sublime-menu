@@ -1,0 +1,10 @@
+[{
+    "id" : "krepl",
+    "caption" : "Send  to Kronos REPL",
+    "command" : "krepl"
+},
+{
+    "id" : "krepl_instance",
+    "caption" : "Instantiate in Kronos REPL",
+    "command" : "krepl_instance"
+}]

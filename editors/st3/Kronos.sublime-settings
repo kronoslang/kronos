@@ -1,0 +1,7 @@
+{
+	"kronos.krpc_path": "krpc"
+
+//  default values for the runtime library loaded by krpc
+//	"kronos.core_library_repository": "repository-slug"
+//  "kronos.core_library_version": "repository-tag"
+}

@@ -1,0 +1,13 @@
+syntax: glob
+build
+.refresh_token
+.vs
+.git
+.vscode
+*.orig
+scripts
+src/passes
+CMakeSettings.json
+.DS_Store
+website/public
+message.txt

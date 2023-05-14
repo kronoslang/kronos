@@ -1,0 +1,11 @@
+set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} -D_GNU_SOURCE)
+set(CMAKE_REQUIRED_LIBRARIES pthread)
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -msse2 -fno-rtti -Wno-reorder -Wno-unused-function -Wno-attributes -pthread")
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+    set(KRONOS_X86_MARCH "nehalem" CACHE STRING "Minimum architecture for the compiler host")
+	message(STATUS "Building compiler for x86/64 ${KRONOS_X86_MARCH}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${KRONOS_X86_MARCH}")
+endif ()

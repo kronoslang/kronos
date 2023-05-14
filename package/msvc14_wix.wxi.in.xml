@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?include "cpack_variables.wxi"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+    RequiredVersion="3.6.3303.0">
+
+    <Product Id="$(var.CPACK_WIX_PRODUCT_GUID)"
+        Name="$(var.CPACK_PACKAGE_NAME)"
+        Language="1033"
+        Version="$(var.CPACK_PACKAGE_VERSION)"
+        Manufacturer="$(var.CPACK_PACKAGE_VENDOR)"
+        UpgradeCode="$(var.CPACK_WIX_UPGRADE_GUID)">
+
+        <Package InstallerVersion="301" Compressed="yes"/>
+
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes"/>
+
+        <MajorUpgrade
+            Schedule="afterInstallInitialize"
+            AllowSameVersionUpgrades="yes"
+            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)"/>
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT"/>
+
+        <?ifdef CPACK_WIX_PRODUCT_ICON?>
+        <Property Id="ARPPRODUCTICON">ProductIcon.ico</Property>
+        <Icon Id="ProductIcon.ico" SourceFile="$(var.CPACK_WIX_PRODUCT_ICON)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_BANNER?>
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.CPACK_WIX_UI_BANNER)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_DIALOG?>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.CPACK_WIX_UI_DIALOG)"/>
+        <?endif?>
+
+      <DirectoryRef Id="PROGRAM_MENU_FOLDER">
+        <Component Id="kshell_shortcut" Guid="*">
+          <Shortcut Id="kshell" Name="Kronos PowerShell"
+                    Description="Run PowerShell with Kronos Command Line Tools"
+                    Target="[INSTALL_ROOT]\kronos_shell.bat">
+          </Shortcut>
+          <RemoveFolder Id="CM_REMOVE_PROGRAM_MENU_FOLDER_kshell" On="uninstall"/>
+          <RegistryValue Root="HKCU" Key="Software\UniArts Helsinki\Kronos 0.6.7" Name="kshell_installed" Type="integer" Value="1" KeyPath="yes"/>
+        </Component>
+      </DirectoryRef>
+
+      <FeatureRef Id="ProductFeature">
+          <ComponentRef Id="kshell_shortcut"/>
+      </FeatureRef>
+
+      <?include "properties.wxi"?>
+      <CustomAction Id="vcredist" ExeCommand='cmd.exe /C install_vcredist.bat' Directory="CM_DP_core.bin"
+                    Execute="immediate" Return="asyncWait"/>
+        <UI>
+            <UIRef Id="$(var.CPACK_WIX_UI_REF)" />
+          <Publish Dialog="ExitDialog"
+              Control="Finish"
+              Event="DoAction"
+              Value="vcredist">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        </UI>
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Download and install Visual C++ 2015 Runtime" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    </Product>
+</Wix>

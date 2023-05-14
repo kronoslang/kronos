@@ -1,0 +1,38 @@
+{ "name": "Kronos",
+  "scopeName": "source.kronos",
+  "fileTypes": ["k"],
+  "foldingStartMarker": "\\{\\s*$",
+  "foldingEndMarker": "^\\s*\\}",
+  "patterns": [ {
+    "match" : "(Import|Use|Package)",
+    "name"  : "keyword.packages.kronos"
+  }, {
+    "match" : "([a-zA-Z:][a-zA-Z0-9!?\\-+:/]*\\(|\\{|\\}|\\(|\\))",
+    "name"  : "support.function.kronos"
+  }, {
+    "match" : "[a-zA-Z:][a-zA-Z0-9!?\\-+:]*",
+    "name"  : "entity.name.kronos"
+  }, {
+    "match" : "#[0-9]*\\.?[0-9]+",
+    "name"  : "constant.language.kronos"
+  }, {
+    "match" : "\"(\\\\.|[^\\\\])*?\"",
+    "name"  : "string.kronos"
+  }, { 
+    "match" : "\\b[0-9]*\\.?[0-9]+([dqi]|)",
+    "name"  : "constant.numeric.kronos"
+  }, {
+    "match" : "([:+\\-/*&|]|==|>=|=>|<=|<<|>>|=)",
+    "name"  : "keyword.operator.kronos"
+  }, {
+    "match" : "(Import|Use|Package|Type)\\s",
+    "name"  : "keyword.control.import.kronos"
+  }, {
+    "match" : "(When|Let|Raise|z-1|rbuf|rcsbuf)\\s",
+    "name"  : "keyword.control.kronos"
+  }, {
+    "match" : "[\\{\\}]",
+    "name"  : "keyword.scope.kronos"
+  }],
+  "uuid": "e621f7b0-d1cc-4fd5-87a2-e82fb4fed3e3"
+}

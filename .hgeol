@@ -1,0 +1,15 @@
+[repository]
+native = LF
+
+[patterns]
+**.c = native
+**.h = native
+**.cpp = native
+**.hpp = native
+**.k = native
+**.txt = native
+**.md = native
+**.json = native
+**.cmake = native
+**.py = native
+**.in = native

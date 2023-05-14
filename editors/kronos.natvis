@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="K3::Type">
+    <DisplayString Condition="kind==NilType">nil</DisplayString>
+    <DisplayString Condition="kind==TrueType">True</DisplayString>
+    <DisplayString Condition="kind==UserType">{data.UserType.tag->name,sb}{{{*data.UserType.Content}}}</DisplayString>
+    <DisplayString Condition="kind==TupleType &amp;&amp; data.Tuple.fstArity==1">({data.Tuple.Data->fst} {data.Tuple.Data->rst})</DisplayString>
+    <DisplayString Condition="kind==TupleType &amp;&amp; data.Tuple.fstArity&gt;1">({data.Tuple.Data->fst} x {data.Tuple.fstArity} {data.Tuple.Data->rst})</DisplayString>
+    <DisplayString Condition="kind==InvariantStringType">{*data.InvariantString}</DisplayString>
+    <DisplayString Condition="kind==InvariantType">#{data.InvariantValue->vis}</DisplayString>
+    <DisplayString Condition="kind==Float32Type">Float32</DisplayString>
+    <DisplayString Condition="kind==Int32Type">Int32</DisplayString>
+    <DisplayString Condition="kind==Float64Type">Float64</DisplayString>
+    <DisplayString Condition="kind==Int64Type">Int64</DisplayString>
+    <DisplayString Condition="kind==UnionType">UnsafeUnion{data.Union->subTypes}</DisplayString>
+    <DisplayString Condition="kind==InvariantGraphType">Function</DisplayString>
+    <DisplayString Condition="kind==TypeTagType">{data.TypeTag->name}</DisplayString>
+    <DisplayString Condition="kind==RuleGeneratorType">RR{{{data.RGen->templateType}}}</DisplayString>
+    <DisplayString Condition="kind==InternalUsageType">INTERNAL</DisplayString>
+    <Expand>  
+      <Item Name="Tag" Condition="kind==UserType">data.UserType.tag->name</Item>
+      <Item Name="Content" Condition="kind==UserType">*data.UserType.Content</Item>
+      <Item Name="Element" Condition="kind==TupleType">data.Tuple.Data->fst</Item>
+      <Item Name="Array" Condition="kind==TupleType &amp;&amp; data.Tuple.fstArity&gt;1">data.Tuple.fstArity</Item>
+      <ExpandedItem Condition="kind==TupleType &amp;&amp; data.Tuple.Data->rst.kind==TupleType">data.Tuple.Data->rst</ExpandedItem>
+      <Item Name="End" Condition="kind==TupleType &amp;&amp; data.Tuple.Data->rst.kind!=TupleType">data.Tuple.Data->rst</Item>
+      <Item Name="Subtypes" Condition="kind==UnionType">data.Union->subTypes</Item>
+      <Item Name="Body" Condition="kind==InvariantGraphType">data.RefObj</Item>
+      <Item Name="Template" Condition="kind==RuleGeneratorType">data.RGen->templateType</Item>
+      <Item Name="SCEV" Condition="kind==RuleGeneratorType">*data.RGen->scev</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Specialization">
+    <DisplayString>Specialization{{{result}}}</DisplayString>
+  <Expand>
+    <Item Name="Node" Condition="node">*node</Item>
+    <Synthetic Name="Node" Condition="node == nullptr"><DisplayString>Failed</DisplayString></Synthetic>
+    <Item Name="Type">result</Item>
+  </Expand>
+  </Type>
+  <Type Name="simple_string">
+    <DisplayString>{natvisStr,s}</DisplayString>
+  </Type>
+  <Type Name="ImmutableNode">
+    <DisplayString>$(Type)</DisplayString>
+    <Expand>
+      <IndexListItems>
+        <Size>numCons</Size>
+        <ValueNode>*upstream[$i]</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::FunctionCall">
+    <DisplayString>{label,sb}({*upstream[0]})</DisplayString>
+    <Expand>
+      <Item Name="Arg">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Evaluate">
+    <DisplayString>{*upstream[0]} {*upstream[1]}</DisplayString>
+    <Expand>
+      <Item Name="Fn">*upstream[0]</Item>
+      <Item Name="Arg">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Lib::Reference">
+    <DisplayString>{lookup[0],sb}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::GenericPair">
+    <DisplayString>({*upstream[0]} {*upstream[1]})</DisplayString>
+    <Expand>
+      <Item Name="First">*upstream[0]</Item>
+      <Item Name="Rest">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Pair">
+    <DisplayString>({*upstream[0]} {*upstream[1]})</DisplayString>
+    <Expand>
+      <Item Name="First">*upstream[0]</Item>
+      <Item Name="Rest">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Native::Constant">
+    <DisplayString Condition="type.kind==K3::Type::Int64Type&amp;&amp;memory">{*(int64_t*)memory}</DisplayString>
+    <DisplayString Condition="type.kind==K3::Type::Int32Type&amp;&amp;memory">{*(int32_t*)memory}</DisplayString>
+    <DisplayString Condition="type.kind==K3::Type::Float32Type&amp;&amp;memory">{*(float*)memory}</DisplayString>
+    <DisplayString Condition="type.kind==K3::Type::Float64Type&amp;&amp;memory">{*(double*)memory}</DisplayString>
+    <DisplayString>{type}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::DataSource">
+    <DisplayString>DS({*upstream[0]})</DisplayString>
+    <Expand>
+      <Item Name="Source">*upstream[0]</Item>
+      <Item Name="Layout">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Buffer">
+    <DisplayString>{alloc} Buf {GUID}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::CStringLiteral">
+    <DisplayString>c_str {str}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::Subroutine">
+    <DisplayString>{label,sb}(...)</DisplayString>
+    <Expand>
+      <Item Name="Body">*compiledBody.root</Item>
+      <IndexListItems>
+        <Size>numCons</Size>
+        <ValueNode>*upstream[$i]</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::SubroutineArgument">
+    <DisplayString>ARG{ID}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::Deps">
+    <DisplayString>Proc( {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="Value">*upstream[0]</Item>
+      <IndexListItems>
+        <Size>numCons - 1</Size>
+        <ValueNode>*upstream[$i + 1]</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::First">
+    <DisplayString>First( {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="First of">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Rest">
+    <DisplayString>Rest( {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="Rest of">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::ReactiveOperators::Tick">
+    <DisplayString>~{{{Identifier}}}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::RingBuffer">
+    <DisplayString Condition="len==1">z-1( {*upstream[1]} )</DisplayString>
+    <Expand>
+      <Item Name="Initializer">*upstream[0]</Item>
+      <Item Name="Signal">*upstream[1]</Item>
+      <Item Name="Order">len</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::GetGlobalVariable">
+    <DisplayString>{key,s}</DisplayString>
+    <Expand>
+      <Item Name="Initializer">*upstream[0]</Item>
+      <Item Name="Type">t</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Native::TBin&lt;float&gt;">
+    <DisplayString ExcludeView="expr">{opcode,en}</DisplayString>
+    <DisplayString IncludeView="expr">{opcode,en}( {*upstream[0],view(expr)}, {*upstream[1],view(expr)} )</DisplayString>
+    <DisplayString IncludeView="expr" Condition="opcode==Mul">( {*upstream[0],view(expr)} * {*upstream[1],view(expr)} )</DisplayString>
+    <DisplayString IncludeView="expr" Condition="opcode==Add">( {*upstream[0],view(expr)} + {*upstream[1],view(expr)} )</DisplayString>
+    <DisplayString IncludeView="expr" Condition="opcode==Sub">( {*upstream[0],view(expr)} - {*upstream[1],view(expr)} )</DisplayString>
+    <DisplayString IncludeView="expr" Condition="opcode==Div">( {*upstream[0],view(expr)} / {*upstream[1],view(expr)} )</DisplayString>
+    <Expand>
+      <Synthetic Name="Expression">
+        <DisplayString>{*this,view(expr)}</DisplayString>
+      </Synthetic>
+      <Item Name="LHS">*upstream[0]</Item>
+      <Item Name="RHS">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::ReactiveOperators::Merge">
+    <DisplayString>RxMerge</DisplayString>
+    <Expand>
+      <IndexListItems>
+        <Size>numCons</Size>
+        <ValueNode>*upstream[$i]</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::ReactiveOperators::RelativePriority">
+    <DisplayString>Priority{{ {*upstream[0]} &lt;-{delta}- {*upstream[1]} }}</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::ReactiveOperators::BaseRate">
+    <DisplayString>Rate-of( {*upstream[0]} )</DisplayString>
+  </Type>
+  <Type Name="K3::Nodes::Native::TUn&lt;float&gt;">
+    <DisplayString ExcludeView="expr">{opcode,en}</DisplayString>
+    <DisplayString IncludeView="expr">{opcode,en}( {*upstream[0],view(expr)} )</DisplayString>
+    <Expand>
+      <Synthetic Name="Expression">
+        <DisplayString>{*this,view(expr)}</DisplayString>
+      </Synthetic>
+      <Item Name="Argument">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Reference">
+    <DisplayString>Ref( {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="Data">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Dereference">
+    <DisplayString>DeRef( {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="Data">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Offset">
+    <DisplayString>[ {*upstream[0]} + {*upstream[1]} ]</DisplayString>
+    <Expand>
+      <Item Name="Base">*upstream[0]</Item>
+      <Item Name="Offset">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Copy">
+    <DisplayString Condition="mode==Store">Store {*upstream[0]} &lt;- {*upstream[1]}</DisplayString>
+    <DisplayString Condition="mode==MemCpy">MemCpy( {*upstream[0]}, {*upstream[1]}, {*upstream[2]} ) x repeat</DisplayString>
+    <Expand>
+      <Item Name="Destination">*upstream[0]</Item>
+      <Item Name="Source">*upstream[1]</Item>
+      <Item Name="Size">*upstream[2]</Item>
+      <Item Name="Clock" Condition="reactivity != nullptr">*reactivity</Item>
+      <Item Name="Repeat">*upstream[3]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::Boundary">
+    <DisplayString>Boundary {{{*reactivity} &lt;- {*upstreamReactivity} }} </DisplayString>
+    <Expand>
+      <Item Name="Data">*upstream[0]</Item>
+      <Item Name="State">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Nodes::ReactiveOperators::Impose">
+    <DisplayString>Resample( {*upstream[1]} @ {*upstream[0]} )</DisplayString>
+    <Expand>
+      <Item Name="Signal">*upstream[1]</Item>
+      <Item Name="Clock">*upstream[0]</Item>
+    </Expand>
+  </Type>
+  <Type Name="K3::Reactive::FusedSet">
+    <DisplayString Condition="numCons==0">empty</DisplayString>
+    <Expand>
+      <IndexListItems>
+        <Size>numCons</Size>
+        <ValueNode>*upstream[$i]</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="K3::Reactive::DriverNode">
+    <DisplayString>{DriverId}</DisplayString>
+  </Type>
+  <Type Name="K3::Reactive::LazyPair">
+    <Expand>
+      <Item Name="First">*upstream[0]</Item>
+      <Item Name="Rest ">*upstream[1]</Item>
+    </Expand>
+  </Type>
+  <Type Name="pcoll::treap_node">
+    
+  </Type>
+
+  <Type Name="picojson::value">
+    <DisplayString Condition="type_ == null_type">null</DisplayString>
+    <DisplayString Condition="type_ == boolean_type">{u_.boolean_}</DisplayString>
+    <DisplayString Condition="type_ == number_type">{u_.number_}</DisplayString>
+    <DisplayString Condition="type_ == string_type">{*u_.string_}</DisplayString>
+    <DisplayString Condition="type_ == array_type">JSON Array {*u_.array_}</DisplayString>
+    <DisplayString Condition="type_ == object_type">JSON Object {*u_.object_}</DisplayString>
+    <Expand>
+      <ExpandedItem Condition="type_ == array_type">*u_.array_</ExpandedItem>
+      <ExpandedItem Condition="type_ == object_type">*u_.object_</ExpandedItem>
+    </Expand>
+  </Type>
+
+<Type Name="cfg::match_either&lt;*&gt;">
+  <DisplayString>{lhs} | {rhs}</DisplayString>
+</Type>
+  <Type Name="cfg::match_literal">
+    <DisplayString>{lit,sb}</DisplayString>
+  </Type>
+  <Type Name="cfg::match_drop&lt;*&gt;">
+    <DisplayString>I({r})</DisplayString>
+  </Type>
+  <Type Name="cfg::match_token&lt;*&gt;">
+    <DisplayString>&lt;{l,sb}&gt;</DisplayString>
+  </Type>
+  <Type Name="cfg::match_label&lt;*&gt;">
+    <DisplayString>&lt;{label,sb}: {r}&gt;</DisplayString>
+  </Type>
+  <Type Name="cfg::match_multiple&lt;*&gt;">
+    <DisplayString>|:{r}:|</DisplayString>
+  </Type>
+  <Type Name="cfg::match_assert&lt;*&gt;">
+    <DisplayString>r</DisplayString>
+  </Type>
+  <Type Name="cfg::node">
+    <DisplayString Condition="strend != 0">{strbeg,[strend-strbeg]}</DisplayString>
+    <DisplayString Condition="strend == 0">[{strbeg,sb}]</DisplayString>
+    <Expand>
+      <ExpandedItem>children</ExpandedItem>
+    </Expand>
+  </Type>
+</AutoVisualizer>

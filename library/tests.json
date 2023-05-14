@@ -1,0 +1,261 @@
+{
+    "audio": {
+        "BDA": {
+            "Faust-Biquad": {}
+        },
+        "CMJ": {
+            "Filter-Complex": {},
+            "Filter-Lowpass": {},
+            "Filter-Lowpass-Double": {},
+            "Naive-Saw": {},
+            "Schroeder-Reverb": {},
+            "Voice-Allocator": { "control": "Midi" }
+        },
+        "Filter": {
+            "Resonator-Bank": {},
+            "Simple-Resonator": {},
+            "Vector-Resonator-Bank": {},
+            "Simple-Halfband": {},
+            "Simple-Tone": {},
+            "Library-Resonator": {},
+            "Pole-Formats": {}
+        },
+        "Osc": {
+            "Control-Rate-Sin": {},
+            "FM": {},
+            "Mixed-Rate-Osc": {},
+            "Noise": {},
+            "Sin": {},
+            "Sin-Seq": { "control": "Sin-Seq"},
+            "Waveshaping": {},
+            "Lofi-Seq": {}
+        },
+        "Envelope": {
+            "FM-ADSR": {}
+        },
+        "Gen": {
+            "Phasor":
+            { "expr": "Gen:Phasor(441)" },
+
+            "Osc-Unipolar":
+            { "expr": "Gen:Osc(Gen:Shape:Triangle 220.5)" },
+
+            "Osc-Scaled":
+            { "expr": "Gen:Osc(Gen:Shape:Saw 330.75 0.25)" },
+
+            "Osc-Bipolar":
+            { "expr": "Gen:Osc(Gen:Shape:Pulse(0.3) 441 -0.3 0.7)"},
+
+            "Osc-Modulation":
+            { "expr": "Gen:Osc(Gen:Shape:Pulse(Gen:Phasor(0.5)) 110 + 110 * Gen:Phasor(1))"},
+
+            "Offset-Zoo": {},
+
+            "Sin":
+            { "expr": "Gen:Sin(440 * (1 + 0.1 * Gen:Sin(5.5 0.5)))" },
+
+            "Simple-Slower": {},
+            "Nested-Slower": {},
+            "Faster-Args": {},
+            "Oversampled-RM": {},
+            "Library-Oversample": {}
+        },
+        "Thesis": {
+            "Supplementary-Example": {},
+            "Tutorial-04": {},
+            "Tutorial-05": {},
+            "Tutorial-07": {},
+            "Tutorial-08": {},
+            "Tutorial-09": {},
+            "Tutorial-10": {},
+            "Tutorial-11": {},
+            "Tutorial-12": {},
+            "Tutorial-13": {},
+            "Tutorial-14": {},
+            "Tutorial-15": {},
+            "Tutorial-16": {},
+            "Tutorial-17": {},
+            "Tutorial-18": {},
+            "Tutorial-19": {},
+            "Tutorial-20": {},
+            "Tutorial-22": {},
+            "Tutorial-25": {},
+            "Tutorial-26": {},
+            "Tutorial-28": {},
+            "Tutorial-29": {},
+            "Tutorial-30": {},
+            "Tutorial-31": {},
+            "Tutorial-32": {},
+            "Tutorial-33": {}
+        },
+        "Vector": {
+            "Vectorized-Gen": {},
+            "Vectorized-Filter": {},
+            "Mixed-Rate": {},
+            "Big-Vector": {},
+            "Big-Mixed-Vector": {}
+        },
+        "WikiSynthesis": {
+            "Geometric-Waves": {},
+            "Sine-Bank": { "exclude": "Linux" }
+        },
+        "Additive-Synthesis": {
+            "$include": ["tests/Additive-Synthesis.json", "audio"]
+        },
+        "ADSR-Envelope": {
+            "$include": ["tests/ADSR-Envelope.json", "audio"]
+        },
+        "Basics": {
+            "$include": ["tests/Basics.json", "audio"]
+        },
+        "Compile-Time-Computation": {
+            "$include": ["tests/Compile-Time-Computation.json", "audio"]
+        },
+        "DPW": {
+            "$include": ["tests/DPW.json", "audio"]
+        },
+        "Extending-Functions": {
+            "$include": ["tests/Extending-Functions.json", "audio"]
+        },
+        "Gradual-Types": {
+            "$include": ["tests/Gradual-Types.json", "audio"]
+        },
+        "Polymorphism": {
+            "$include": ["tests/Polymorphism.json", "audio"]
+        },
+        "Simple-Waveforms": {
+            "$include": ["tests/Simple-Waveforms.json", "audio"]
+        },
+        "Syntax": {
+            "$include": ["tests/Syntax.json", "audio"]
+        }
+    },
+    "eval": {
+        "Algorithm": {
+            "Big-Reduce": {},
+            "Map-And-Zip": {},
+            "Nested-Expand": {},
+            "Reduce-Concat": {},
+            "Reverse-Reduce": { "exclude": "Darwin;Linux" },
+            "Simple-Accumulate": {},
+            "Simple-Expand": {},
+            "Simple-Filter": {},
+            "Simple-Some": {},
+            "Some-Haystack": {},
+            "Partition": {},
+            "Find-Max": {"expr": "Algorithm:Find-Max(1 9 3 8 6 3 2 11 9 100)" },
+            "Find-Min": {"expr": "Algorithm:Find-Min(1 9 3 8 6 3 2 11 9 100)" }
+        },
+        "Sort": {
+            "Values": { "expr": "Bitonic:Sort(1 9 3 8 6 3 2 11 9 100)" },
+            "Constants": { "expr": "Bitonic:Sort(#1 #9 #3 #8 #6 #3 #2 #11 #9 #100)" },
+            "Basic": {},
+            "Invert": {},
+            "Reorder": {}
+        },
+        "Approx": {
+            "Cosine": { },
+            "Fast": {},
+            "Faster": {}
+        },
+        "Complex": {
+            "Coerce-Invariant-Prototype": { "expr": "Coerce(Complex:Unitary(#0.1) 1)"},
+            "Coerce": { "expr": "Coerce(Complex:Cons(1 0) #0)" },
+            "Implicit-Coerce": { "expr": "Complex:Polar(#0.1 #0.2) + #0.3" },
+            "Addition": { "expr": "Complex:Cons(0 1) + Complex:Polar(Math:Pi #2)"},
+            "Multiplication": { "expr": "I * I" },
+            "Absolute-Value": {"expr": "(Math:Sqrt(Complex:Real(3 * I * 3 * Neg(I))) Abs(3 * I))" }
+        }, 
+        "Coerce": {
+            "Implicit-Coercion-Matrix": {},
+            "Vector-Coerce": {}
+        },
+        "Infix": {
+            "Custom-Infix": {}
+        },
+        "String": {
+            "Replace": {},
+            "Unicode": { "exclude": "Linux" },
+            "Coercing-Concat": {}
+        },
+        "Thesis": {
+            "Tutorial-01": {},
+            "Tutorial-02": {},
+            "Tutorial-03": {},
+            "Tutorial-06": {},
+            "Tutorial-21": {},
+            "Tutorial-23": {},
+            "Tutorial-24": {},
+            "Tutorial-27": {}
+        },
+        "Math": {
+            "Copy-Sign-IEEE": {}
+        },
+        "Core": {
+            "Binding": {},
+            "Cycle-Error": {"exclude": "Static"},
+            "Function-Binding": {},
+            "Infix-Override": {}
+        },
+        "Vector": {
+            "Packed-Coerce":
+            {"expr": "Vector:Cons(1 2 3) * 5d"},
+
+            "Compound-Coerce":
+            {"expr": "#5 - Vector:Cons(1d 2i 3q 4)"},
+
+            "Fallback":
+            {"expr": "Math:Exp(Vector:Cons(2 4 3 9 35))"},
+
+            "Coerce-Invariant":
+            {"expr": "Vector:Cons(1d Algorithm:Expand(#30 (+ 1) 1)) * #30"},
+
+            "Compound-Fallback":
+            {"expr": "Math:Cos(Vector:Cons(0.1 0.2d 0.3 0.4d)) * 5"},
+
+            "Explode":
+            {"expr": "Vector:Explode(Vector:Cons(Algorithm:Expand(#10 (+ 1) 1)))"},
+
+            "Width":
+            {"expr": "Vector:Width(Vector:Cons(Algorithm:Expand(#10 (* 2) #1)))"},
+
+            "Horizontal":
+            {"expr": "Vector:Horizontal((*) Vector:Cons(Algorithm:Expand(#5 (+ 1) 1)))"},
+
+            "Horizontal-Compound":
+            {"expr": "Vector:Horizontal((*) Vector:Cons(#1 2 3q 4d 5i #6 7))"},
+
+            "Coerce": {}
+        },
+        "Additive-Synthesis": {
+            "$include": ["tests/Additive-Synthesis.json", "eval"]
+        },
+        "ADSR-Envelope": {
+            "$include": ["tests/ADSR-Envelope.json", "eval"]
+        },
+        "Basics": {
+            "$include": ["tests/Basics.json", "eval"]
+        },
+        "Compile-Time-Computation": {
+            "$include": ["tests/Compile-Time-Computation.json", "eval"]
+        },
+        "DPW": {
+            "$include": ["tests/DPW.json", "eval"]
+        },
+        "Extending-Functions": {
+            "$include": ["tests/Extending-Functions.json", "eval"]
+        },
+        "Gradual-Types": {
+            "$include": ["tests/Gradual-Types.json", "eval"]
+        },
+        "Polymorphism": {
+            "$include": ["tests/Polymorphism.json", "eval"]
+        },
+        "Simple-Waveforms": {
+            "$include": ["tests/Simple-Waveforms.json", "eval"]
+        },
+        "Syntax": {
+            "$include": ["tests/Syntax.json", "eval"]
+        }
+    }
+}

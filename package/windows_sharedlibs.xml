@@ -1,0 +1,42 @@
+<!-- <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALL_ROOT" Name="kronos 0.3.0">
+                    <Directory Id="CM_DP_cxx_dev.include" Name="include"/>
+                    <Directory Id="CM_DP_cxx_dev.lib" Name="lib"/>
+                    <Directory Id="CM_DP_jit_sequencer.bin" Name="bin"/>
+                    <Directory Id="CM_DP_kronos_core.bin" Name="bin"/>
+                    <Directory Id="CM_DP_static_compiler.bin" Name="bin"/>
+                </Directory>
+            </Directory>
+        </Directory>
+    </Fragment>
+</Wix> -->
+
+<CPackWiXPatch>
+	<CPackWiXFragment Id="TARGETDIR">
+		<Directory Id="CommonAppDataFolder">
+			<Directory Id="KronosSharedFolder" Name="Kronos">
+				<Directory Id="CM_DP_kronos_runtime.share" Name="Lib"/>
+				<Directory Id="CM_DP_kronos_tests.share" Name="Tests"/>
+			</Directory>
+		</Directory>
+	</CPackWiXFragment>
+    <CPackWiXFragment Id="VCREDIST_DL">
+        <PackageGroup Id="vcredist"> 
+          <ExePackage Id="vcredist_x86" 
+            Cache="no" 
+            Compressed="no" 
+            PerMachine="yes" 
+            Permanent="yes" 
+            Vital="yes" 
+            Name="Redist\vcredist_x86.exe" 
+            SourceFile="Redist\vcredist_x86.exe" 
+            DownloadUrl="https://www.microsoft.com/en-us/download/confirmation.aspx?id=46881&6B49FDFB-8E5B-4B07-BC31-15695C5A2143=1" 
+            InstallCommand="/q"> 
+            <ExitCode Value ="3010" Behavior="forceReboot" /> 
+        </ExePackage> 
+    </PackageGroup> 
+</CPackWiXFragment>
+</CPackWiXPatch>

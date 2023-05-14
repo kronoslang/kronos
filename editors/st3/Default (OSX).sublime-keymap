@@ -1,0 +1,5 @@
+[
+	{"keys": ["super+enter"], "command": "krepl"},
+	{"keys": ["super+alt+enter"], "command": "krepl_instance"},
+	{"keys": ["alt+shift+escape"], "command": "krepl_panic"}
+]

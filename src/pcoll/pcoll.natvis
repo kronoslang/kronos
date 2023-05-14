@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+<Type Name="pcoll::detail::treap_node&lt;*&gt;">
+  <Expand>
+    <Item Name="value">value</Item>
+    <ExpandedItem Condition="left.aptr._My_val != 0">(node_t*)left.aptr._My_val</ExpandedItem>
+    <ExpandedItem Condition="right.aptr._My_val != 0">(node_t*)right.aptr._My_val</ExpandedItem>
+  </Expand>
+</Type>
+<Type Name="pcoll::treap&lt;*&gt;">
+  <Expand>
+    <ExpandedItem>root.refdata</ExpandedItem>
+  </Expand>    
+</Type>
+  <Type Name="pcoll::cref&lt;*&gt;">
+    <SmartPointer Usage="Minimal">&amp;refdata._My_val</SmartPointer>
+    <DisplayString>{refdata._My_val.arc}</DisplayString>
+    <Expand>
+      <Item Name="[ptr]">refdata._My_val.arc</Item>
+      <Item Name="[weight]">refdata._My_val.weight</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="pcoll::detail::bitmap_array&lt;*,*&gt;">
+    <Expand>
+      <CustomListItems>
+        <Variable Name="v" InitialValue="bitmap"/>
+        <Variable Name="c" InitialValue="0"/>
+        <Variable Name="i" InitialValue="0"/>
+        <Exec>c = v - (( v &gt;&gt; 1) &amp; 0x55555555)</Exec>
+        <Exec>c = (( c &gt;&gt; 2) &amp; 0x33333333) + ( c &amp; 0x33333333 )</Exec>
+        <Exec>c = (( c &gt;&gt; 4) + c) &amp; 0x0f0f0f0f</Exec>
+        <Exec>c = (( c &gt;&gt; 8) + c) &amp; 0x00ff00ff</Exec>
+        <Exec>c = (( c &gt;&gt; 16) + c) &amp; 0x0000ffff</Exec>
+        <Loop>
+          <If Condition="i &gt;= c">
+            <Break/>
+          </If>
+          <Item Name="[{i}]">data[i]</Item>
+          <Exec>i++</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="pcoll::detail::hamt_node&lt;*&gt;">
+    <Expand>
+      <ExpandedItem>*(keyval_array_t*)((char*)this + sizeof(header_size_t))</ExpandedItem>
+      <CustomListItems>
+        <Variable Name="ptr" InitialValue="(char*)this"/>
+        <Variable Name="kvptr" InitialValue="(keyval_array_t*)(ptr + sizeof(header_size_t))"/>
+        <Variable Name="v" InitialValue="kvptr->bitmap"/>
+        <Variable Name="c" InitialValue="0"/>
+        <Exec>c = v - (( v &gt;&gt; 1) &amp; 0x55555555)</Exec>
+        <Exec>c = (( c &gt;&gt; 2) &amp; 0x33333333) + ( c &amp; 0x33333333 )</Exec>
+        <Exec>c = (( c &gt;&gt; 4) + c) &amp; 0x0f0f0f0f</Exec>
+        <Exec>c = (( c &gt;&gt; 8) + c) &amp; 0x00ff00ff</Exec>
+        <Exec>c = (( c &gt;&gt; 16) + c) &amp; 0x0000ffff</Exec>
+        <Item Name="[subtree]">*(subtree_array_t*)((char *)kvptr->data + c * sizeof(keyval_t))</Item>
+      </CustomListItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>
