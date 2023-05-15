@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include <ostream>
+#include <cstdint>
 
 #ifndef NDEBUG
 #include <sstream>
