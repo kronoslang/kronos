@@ -1,5 +1,4 @@
 VER="6.0.1"
-CORES=$(cat /proc/cpuinfo | grep "processor" | wc -l)
 DIR=$(dirname "$0")
 
 # Download and build LLVM
@@ -12,11 +11,11 @@ if [ ! -d $DIR/llvm ]; then
 	cd llvm/llvm
 	mkdir build && cd build
 	cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_BUILD_EXAMPLES=False -DLLVM_BUILD_TOOLS=False -DLLVM_TARGETS_TO_BUILD=host ..
-	make -j$CORES
+	cmake --build . --config "Release" -j $(nproc)
 fi
 
 # Build Kronos
 cd $DIR
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=./llvm/llvm/build/lib/cmake/llvm/ ..
-make -j$CORES
+sudo cmake --build . --config "Release" --target install -j $(nproc)
