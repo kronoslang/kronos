@@ -315,7 +315,7 @@ if (NOT EMSCSRIPTEN)
 		"src/driver/CompareTestResultJSON.cpp"
 		"src/driver/TestInstrumentation.cpp"
 		"src/driver/hgrev.cpp"
-		"${CMAKE_BINARY_DIR}/headers/config/hgrev.h")
+		"src/driver/hgrev.h")
 
 	add_dependencies( ktests krepl )
 
@@ -433,46 +433,7 @@ if (TARGET binaryen_backend AND TARGET core)
 	target_link_libraries( core PRIVATE binaryen_backend )
 endif()
 
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/library/.hgtags)
-
-# generate lib id
-find_package(Hg REQUIRED)
-
-execute_process(
-	COMMAND "${HG_EXECUTABLE}" parent --template "{latesttag}"
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/library/"
-	OUTPUT_VARIABLE KRONOS_CORE_LIBRARY_VERSION
-	RESULT_VARIABLE LIBRARY_VERSION_RESULT
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(NOT LIBRARY_VERSION_RESULT EQUAL 0)
-	message(FATAL_ERROR "Failed to determine core library version at ${CMAKE_SOURCE_DIR}/library, using ${HG_EXECUTABLE}")
-endif()
-
-if(NOT ${HG_VERSION_STRING} VERSION_LESS 4)
-	add_custom_target(
-		hg_revision
-		COMMAND ${HG_EXECUTABLE} id -R ${CMAKE_SOURCE_DIR} 
-			--template "${CMAKE_SOURCE_DIR}/hgrev" > "${CMAKE_BINARY_DIR}/headers/config/hgrev.h"
-		COMMENT "Generating Mercurial revision header"
-		VERBATIM)
-else()
-	add_custom_target(
-		hg_revision
-		COMMAND bash genrev.sh > "${CMAKE_BINARY_DIR}/headers/config/hgrev.h"
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
-		COMMENT "Generating Mercurial revision header"
-		VERBATIM)
-endif()
-
-set_target_properties(hg_revision PROPERTIES FOLDER release)
-
-set_source_files_properties(${CMAKE_BINARY_DIR}/headers/config/hgrev.h PROPERTIES GENERATED 1)
-
-if (TARGET ktests)
-	add_dependencies(ktests hg_revision)
-endif()
+file(STRINGS "version_stdlib.txt" KRONOS_CORE_LIBRARY_VERSION)
 
 set(KRONOS_CORE_LIBRARY_REPOSITORY "kronoslang/core" CACHE STRING "Package for the runtime library")
 

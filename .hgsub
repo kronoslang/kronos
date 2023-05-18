@@ -1,5 +1,0 @@
-src/pad = [hg]https://hg.sr.ht/~vnorilo/pad
-src/paf = [hg]https://hg.sr.ht/~vnorilo/paf
-src/pcoll = [hg]https://hg.sr.ht/~vnorilo/pcoll
-src/lithe = [hg]https://hg.sr.ht/~vnorilo/lithe
-library = [hg]https://hg.sr.ht/~vnorilo/core
