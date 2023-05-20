@@ -40,10 +40,8 @@ Install-PackageProvider ChocolateyGet
 Windows may prompt you about installing `nuget` and trusting `ChocolateyGet` and downloading 'Choco'.
 
 ```
-choco install cmake,svn
+choco install cmake svn
 ```
-
-Prior to Windows 10, you can install [chocolatey](https://chocolatey.org/) and install the above packages via `choco install`.
 
 #### MacOS ####
 
