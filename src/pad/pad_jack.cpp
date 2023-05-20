@@ -99,7 +99,8 @@ namespace{
 		 ***/
 		virtual AudioStreamConfiguration DefaultMono() const {return AudioStreamConfiguration(rate).Input(0).Output(0);};
 		virtual AudioStreamConfiguration DefaultStereo() const {return AudioStreamConfiguration(rate).StereoInput(0).StereoOutput(0);};
-		virtual AudioStreamConfiguration DefaultAllChannels() const {return AudioStreamConfiguration(rate).Inputs(ChannelRange(0,8)).Outputs(ChannelRange(0,8));};
+		virtual AudioStreamConfiguration DefaultAllChannels() const {return DefaultStereo();};
+		//virtual AudioStreamConfiguration DefaultAllChannels() const {return AudioStreamConfiguration(rate).Inputs(ChannelRange(0,8)).Outputs(ChannelRange(0,8));};
 
 
 		struct JackPortList : vector<jack_port_t*>{
