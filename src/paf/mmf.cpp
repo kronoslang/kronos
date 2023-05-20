@@ -413,14 +413,18 @@ namespace {
 		~MMFWriter( ) {
 			Close( );		
 		}
+		
+		MF::SinkWriter sinkCtorOnClose(PAF::IPropertySet&, DWORD&, MF::MediaType&) {
+			throw std::runtime_error("Media file was closed already");
+		}
 
 		void Close( ) {
 			if (sink) {
 				sink.Finalize( );
 				sink.Release( );
-				sinkConstructor = [](PAF::IPropertySet&, DWORD&, MF::MediaType&) -> MF::SinkWriter {
-					throw std::runtime_error("Media file was closed already");
-				};
+				sinkConstructor = std::bind(
+					&MMFWriter::sinkCtorOnClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3
+				);
 			}
 		}
 

@@ -17,5 +17,5 @@ fi
 # Build Kronos
 cd $DIR
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=./llvm/llvm/build/lib/cmake/llvm/ ..
-sudo cmake --build . --config "Release" --target install -j $(nproc)
+cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=$DIR/llvm/llvm/build/lib/cmake/llvm/ ..
+cmake --build . --config "Release" -j $(nproc)
