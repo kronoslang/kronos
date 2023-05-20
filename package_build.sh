@@ -17,14 +17,13 @@ if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
 	cp build/bin/Release/krpcsrv.exe kronos/bin
 	cp build/Release/*.lib kronos/lib
 elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
-	cp build/libkronos.so* kronos/bin
-	cp build/libkronos.so* kronos/lib
-	cp build/*.so kronos/lib
-	cp build/*.a kronos/lib
 	cp build/bin/kc kronos/bin
 	cp build/bin/krepl kronos/bin
 	cp build/bin/ktests kronos/bin
 	cp build/bin/klangsrv kronos/bin
 	cp build/bin/krpc kronos/bin
 	cp build/bin/krpcsrv kronos/bin
+	cp build/*.a kronos/lib
+	cp -P build/libkronos* kronos/bin
+	cp -P build/libkronos* kronos/lib
 fi
