@@ -1,8 +1,9 @@
 LLVM_VER="6.0.1"
 DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+LLVM_DIR="$DIR/llvm/llvm/build/lib/cmake/llvm"
 
 # Download and build LLVM
-if [ ! -d $DIR/llvm ]; then
+if [ ! -d $LLVM_DIR ]; then
 	cd $DIR
 	wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$LLVM_VER.zip
 	unzip llvmorg-$LLVM_VER.zip
@@ -17,7 +18,7 @@ fi
 # Build Kronos
 cd $DIR
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=$DIR/llvm/llvm/build/lib/cmake/llvm/ ..
+cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=$LLVM_DIR ..
 cmake --build . --config "Release" -j $(nproc)
 
 # Move all relevant files to the kronos folder
