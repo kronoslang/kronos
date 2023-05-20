@@ -339,30 +339,22 @@ if (NOT EMSCSRIPTEN)
 		"src/driver/package.h")
 endif()
 
-find_library(LIB_TINYXML tinyxml PATHS)
-if (NOT EMSCRIPTEN AND NOT ${LIB_TINYXML} STREQUAL "LIB_TINYXML-NOTFOUND")
-	message(STATUS "Linking ${LIB_TINYXML}")
-	target_link_libraries(cli ${LIB_TINYXML})
-	target_link_libraries(core PRIVATE ${LIB_TINYXML})
-else()
-	# embed tinyxml
-	message(STATUS "Embedding TinyXML")
-	add_library( tinyxml 
-		"src/tinyxml/tinyxml.cpp" 
-		"src/tinyxml/tinyxmlerror.cpp" 
-		"src/tinyxml/tinyxmlparser.cpp")
-	include_directories(src/tinyxml)
-	set_target_properties(tinyxml PROPERTIES FOLDER libs)
-	set_property(TARGET tinyxml PROPERTY POSITION_INDEPENDENT_CODE ON)
-	target_link_libraries(cli tinyxml)
-	if (TARGET core)
-		target_link_libraries(core PRIVATE tinyxml)
-	endif()
-	if (TARGET kwasm)
-		target_link_libraries(kwasm PRIVATE tinyxml)
-	endif()
+# embed tinyxml
+message(STATUS "Embedding TinyXML")
+add_library( tinyxml 
+  "src/tinyxml/tinyxml.cpp" 
+  "src/tinyxml/tinyxmlerror.cpp" 
+  "src/tinyxml/tinyxmlparser.cpp")
+include_directories(src/tinyxml)
+set_target_properties(tinyxml PROPERTIES FOLDER libs)
+set_property(TARGET tinyxml PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(cli tinyxml)
+if (TARGET core)
+  target_link_libraries(core PRIVATE tinyxml)
 endif()
-
+if (TARGET kwasm)
+  target_link_libraries(kwasm PRIVATE tinyxml)
+endif()
 
 # krpc is not marked as a cli app because there's no utf8 handling on windows
 set(KRONOS_CLI_APPS kc krepl krpcsrv klangsrv ktests cli)
