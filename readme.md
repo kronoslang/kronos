@@ -1,6 +1,6 @@
 # Kronos Compiler Suite #
 
-## Vesa Norilo - University of Arts ##
+## Vesa Norilo - University of Arts Helsinki ##
 
 This is a mirror of the original repository, hosted on Sourcehut: https://hg.sr.ht/~vnorilo/kronos.
 
