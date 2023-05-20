@@ -38,4 +38,5 @@ if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
 	cp build/Release/*.lib kronos/lib
 	cp src/*.h kronos/include
 elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
+	echo "TODO"
 fi
