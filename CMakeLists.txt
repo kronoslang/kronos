@@ -439,7 +439,7 @@ set(KRONOS_CORE_LIBRARY_REPOSITORY "kronoslang/core" CACHE STRING "Package for t
 
 message(STATUS "Core Library ${CMAKE_SOURCE_DIR}/library/ [${KRONOS_CORE_LIBRARY_REPOSITORY} ${KRONOS_CORE_LIBRARY_VERSION}] (${LIBRARY_VERSION_RESULT})")
 
-configure_file(corelib.h.in "${CMAKE_CURRENT_BINARY_DIR}/headers/config/corelib.h")
+configure_file(config/corelib.h.in "${CMAKE_CURRENT_BINARY_DIR}/headers/config/corelib.h")
 
 function(KDCC_SUBCOMMAND subcmd)
 	set(subtarget "kdcc_${subcmd}")
@@ -471,7 +471,7 @@ if(NOT EMSCRIPTEN)
 endif()
 
 string(TIMESTAMP CURRENT_YEAR "%Y")
-configure_file(config.h.in "${CMAKE_CURRENT_BINARY_DIR}/headers/config/system.h")
+configure_file(config/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/headers/config/system.h")
 
 get_property(BUILD_TARGETS GLOBAL PROPERTY BUILDSYSTEM_TARGETS)
 message(STATUS Building ${BUILD_TARGETS})

@@ -17,15 +17,15 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/kc_obj)
 
 find_package(PythonInterp 2.7 REQUIRED)
 
-execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/configure_tests.py" "${CMAKE_SOURCE_DIR}/library/tests.json"
+execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/tests/configure_tests.py" "${CMAKE_SOURCE_DIR}/library/tests.json"
 				OUTPUT_VARIABLE STATIC_TESTS)
 
-execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/partition_dynamic_tests.py" "${CMAKE_SOURCE_DIR}/library/tests.json"
+execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/tests/partition_dynamic_tests.py" "${CMAKE_SOURCE_DIR}/library/tests.json"
 				OUTPUT_VARIABLE TEST_MODULES)
 
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS 
-	"${CMAKE_SOURCE_DIR}/configure_tests.py"
-	"${CMAKE_SOURCE_DIR}/partition_dynamic_tests.py"
+	"${CMAKE_SOURCE_DIR}/tests/configure_tests.py"
+	"${CMAKE_SOURCE_DIR}/tests/partition_dynamic_tests.py"
 	"${CMAKE_SOURCE_DIR}/library/tests.json" )
 
 set(KRONOS_SUBMIT_TEST_AUTH "" CACHE STRING "Submit test run to database")
