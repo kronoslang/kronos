@@ -65,9 +65,5 @@ The easiest way to build Kronos is by using the `build.sh` script included in th
 
 ### Getting Started ###
 
-A good way to get started is to run the test suite via *ktests*. It runs a set of Kronos programs via *krepl*. The tests include both expression evaluation against an expected result, and audio signal synthesis where a small relative error is tolerated due to floating point considerations.
+To get started with Kronos, visit the Resources page on the website: https://kronoslang.io/resources.
 
-If you want to see the command lines *ktests* uses, run it with the *--verbose* switch.
-
-I'm working on adding introductory material to the [Wiki][].
-[Wiki]:https://bitbucket.org/vnorilo/k3/wiki/Home

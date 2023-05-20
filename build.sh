@@ -1,5 +1,5 @@
 LLVM_VER="6.0.1"
-DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 # Download and build LLVM
 if [ ! -d $DIR/llvm ]; then
@@ -26,6 +26,7 @@ mkdir -p kronos
 mkdir -p kronos/bin
 mkdir -p kronos/lib
 mkdir -p kronos/include
+cp src/*.h kronos/include
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
 	cp build/bin/Release/kronos.dll kronos/bin
 	cp build/bin/Release/kronos.dll kronos/lib
@@ -36,7 +37,15 @@ if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
 	cp build/bin/Release/krpc.exe kronos/bin
 	cp build/bin/Release/krpcsrv.exe kronos/bin
 	cp build/Release/*.lib kronos/lib
-	cp src/*.h kronos/include
 elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
-	echo "TODO"
+	cp build/libkronos.so* kronos/bin
+	cp build/libkronos.so* kronos/lib
+	cp build/*.so kronos/lib
+	cp build/*.a kronos/lib
+	cp build/bin/kc kronos/bin
+	cp build/bin/krepl kronos/bin
+	cp build/bin/ktests kronos/bin
+	cp build/bin/klangsrv kronos/bin
+	cp build/bin/krpc kronos/bin
+	cp build/bin/krpcsrv kronos/bin
 fi
