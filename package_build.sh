@@ -24,6 +24,6 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
 	cp build/bin/krpc kronos/bin
 	cp build/bin/krpcsrv kronos/bin
 	cp build/*.a kronos/lib
-	cp -P build/libkronos* kronos/bin
-	cp -P build/libkronos* kronos/lib
+	cp -a build/libkronos* kronos/bin
+	cp -a build/libkronos* kronos/lib
 fi
