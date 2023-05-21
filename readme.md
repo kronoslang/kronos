@@ -4,7 +4,7 @@
 
 This is a mirror of the original repository, hosted on Sourcehut: https://hg.sr.ht/~vnorilo/kronos.
 
-In this Github repository some minor fixes are pushed to make building Kronos easier.
+This Github repository contains some minor fixes to make building Kronos easier.
 
 Please visit the main web page of the project at [kronoslang.io](https://kronoslang.io)
 
@@ -51,10 +51,10 @@ Get Xcode from the app store. Then you can install the dependencies via [Homebre
 brew install cmake subversion
 ```
 
-#### Ubuntu 20.04 LTS ####
+#### Ubuntu ####
 
 ```
-sudo apt-get install g++ python cmake libjack-dev libsndfile-dev libtinyxml-dev libreadline-dev libcurl4-openssl-dev
+sudo apt-get install g++ python cmake libjack-dev libsndfile-dev libreadline-dev libcurl4-openssl-dev
 ```
 
 ### Building ###
