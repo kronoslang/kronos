@@ -37,7 +37,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: crazy-max/ghaction-chocolatey@v2
         with:
-          args: install svn
+          args: install cmake svn
 
       - name: Checkout LLVM
         uses: actions/checkout@v3
