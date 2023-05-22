@@ -11,11 +11,11 @@ jobs:
       matrix:
         include:
           - name: Linux-x64
-            os: ubuntu-latest
+            os: ubuntu-22.04
           - name: macOS
-            os: macos-latest
+            os: macos-10.15
           - name: Windows-x64
-            os: windows-latest
+            os: windows-2022
     
     env:
       LLVM_PATH: ${{ github.workspace }}/llvm
