@@ -46,16 +46,28 @@ jobs:
           path: ${{ env.LLVM_PATH }}
           ref: llvmorg-6.0.1
       
-      - name: Build LLVM
+      - name: Build LLVM (Linux and Windows)
         shell: bash
         working-directory: ${{ env.LLVM_PATH }}
         run: cd llvm && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_BUILD_EXAMPLES=False -DLLVM_BUILD_TOOLS=False -DLLVM_TARGETS_TO_BUILD=host .. && cmake --build . --config "Release" -j $(nproc)
       
-      - name: Build Kronos
+      - name: Build LLVM (macOS)
+        if: runner.os == 'macOS' 
+        shell: bash
+        working-directory: ${{ env.LLVM_PATH }}
+        run: cd llvm && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_BUILD_EXAMPLES=False -DLLVM_BUILD_TOOLS=False -DLLVM_TARGETS_TO_BUILD=host .. && cmake --build . --config "Release"
+      
+      - name: Build Kronos (Linux and Windows)
         shell: bash
         working-directory: ${{ github.workspace }}
         run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=$LLVM_PATH/llvm/build/lib/cmake/llvm/ .. && cmake --build . --config "Release" -j $(nproc)
 
+      - name: Build Kronos (macOS)
+        if: runner.os == 'macOS' 
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=$LLVM_PATH/llvm/build/lib/cmake/llvm/ .. && cmake --build . --config "Release"
+      
       - name: Package files
         shell: bash
         working-directory: ${{ github.workspace }}
