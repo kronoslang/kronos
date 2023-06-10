@@ -20,14 +20,11 @@ Kronos is a programming language and a compiler for musical signal processing. T
 
 You can install one of the prebuilt packages targeted to Windows 10+, macOS, or Linux. These are available as releases in the Github release page.
 
-### Compiling from Source ###
+### Compiling from source ###
 
-The dependencies for compiling Kronos are:
+The only dependency to build Kronos is `cmake`.
 
-    1. cmake
-    2. subversion
-
-These can be retrieved differently according to the OS:
+This can be retrieved differently according to the OS:
 
 #### Windows ####
 
@@ -40,7 +37,7 @@ Install-PackageProvider ChocolateyGet
 Windows may prompt you about installing `nuget` and trusting `ChocolateyGet` and downloading 'Choco'.
 
 ```
-choco install cmake svn
+choco install cmake
 ```
 
 #### MacOS ####
@@ -48,13 +45,15 @@ choco install cmake svn
 Get Xcode from the app store. Then you can install the dependencies via [Homebrew](https://brew.sh/).
 
 ```
-brew install cmake subversion
+brew install cmake
 ```
 
 #### Ubuntu ####
 
+Linux has additional dependencies for `g++~`, `python2`, `libjack`, `libsndfile`, `libreadline` and `libcurl`. On Ubuntu, these can be installed like so:
+
 ```
-sudo apt-get install g++ python cmake libjack-dev libsndfile-dev libreadline-dev libcurl4-openssl-dev
+sudo apt-get install cmake g++ python2 libjack-dev libsndfile-dev libreadline-dev libcurl4-openssl-dev
 ```
 
 ### Building ###

@@ -28,16 +28,6 @@ jobs:
       - name: Deps (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install g++ python2 cmake libjack-dev libsndfile-dev libreadline-dev libcurl4-openssl-dev
-      
-      - name: Deps (macOS)
-        if: runner.os == 'macOS'
-        run: brew install cmake subversion
-      
-      - name: Deps (Windows)
-        if: runner.os == 'Windows'
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: install cmake svn
 
       - name: Checkout LLVM
         uses: actions/checkout@v3
